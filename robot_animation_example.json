@@ -1,0 +1,80 @@
+{
+    "frameRate":60,
+    "startFrame":0,
+    "endFrame":200,
+    "loop": true,
+    "brightness":
+    {
+        "animation": true,
+        "keyframe":[
+            {
+                "from_frame":0,
+                "to_frame":100,
+                "from_value": 0,
+                "to_value":100,
+                "bezier":[0.42, 0.0, 0.58, 1.0],
+            },
+            {
+                "from_frame":101,
+                "to_frame":200,
+                "from_value": 100,
+                "to_value":0,
+                "bezier":[0.42, 0.0, 1.0, 1.0],
+            }
+        ]
+    },
+    "rotation":
+    {
+        "animation": true,
+        "keyframe":[
+            {
+                "from_frame":0,
+                "to_frame":70,
+                "from_value": 180,
+                "to_value":0,
+                "bezier":[0.42, 0.0, 0.58, 1.0],
+            },
+            {
+                "from_frame":71,
+                "to_frame":150,
+                "from_value": 0,
+                "to_value":359,
+                "bezier":[0.42, 0.0, 1.0, 1.0],
+            },
+            {
+                "from_frame":151,
+                "to_frame":200,
+                "from_value": 359,
+                "to_value":180,
+                "bezier":[0.42, 0.0, 1.0, 1.0],
+            }
+        ]
+    },
+    "tilt":
+    {
+        "animation": true,
+        "keyframe":[
+            {
+                "from_frame":0,
+                "to_frame":70,
+                "from_value": 0,
+                "to_value":-30,
+                "bezier":[0.42, 0.0, 0.58, 1.0],
+            },
+            {
+                "from_frame":71,
+                "to_frame":150,
+                "from_value": -30,
+                "to_value":90,
+                "bezier":[0.42, 0.0, 1.0, 1.0],
+            },
+            {
+                "from_frame":151,
+                "to_frame":200,
+                "from_value": 90,
+                "to_value":0,
+                "bezier":[0.42, 0.0, 1.0, 1.0],
+            }
+        ]
+    }
+}

@@ -1,0 +1,6 @@
+I want you to create a one page html canvas which supports 3d rendering . which will render a Lamp robot same as pixar lamp robot .
+Robot has 3 property that can be animated . the head can be rotated and tilt.
+the lamp brightness can be changed from 0 to 100%.
+
+The lamp should able to animate those properties based on the robot_animation_schema.json in this current folder .
+The robot shoudl animate using the robot_animation_example.json file

@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lamp Robot Animation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: white;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        #canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            z-index: 1000;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            z-index: 1000;
+            min-width: 350px;
+        }
+
+        .controls h4 {
+            margin: 0 0 15px 0;
+            color: #ffd700;
+            font-size: 16px;
+        }
+
+        .control-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .controls button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            flex: 1;
+        }
+
+        .controls button:hover {
+            background: #45a049;
+        }
+
+        .controls button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+
+        .load-btn {
+            background: #2196F3 !important;
+        }
+
+        .load-btn:hover {
+            background: #1976D2 !important;
+        }
+
+        .frame-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .frame-slider {
+            flex: 1;
+            height: 6px;
+            background: #ddd;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .frame-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ffd700;
+            cursor: pointer;
+        }
+
+        .frame-info {
+            font-size: 11px;
+            color: #ccc;
+            min-width: 80px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <div class="info">
+        <div><strong>Lamp Robot Animation Viewer</strong></div>
+        <div style="font-size: 12px; margin-top: 5px;">
+            • <strong>Load Sample:</strong> Test with built-in animation<br>
+            • <strong>Load File:</strong> Browse for your own JSON files<br>
+            • <strong>Frame Slider:</strong> Manual frame-by-frame control
+        </div>
+    </div>
+
+    <div class="controls">
+        <h4>Animation Controls</h4>
+        <div class="control-row">
+            <button id="playBtn">▶ Play</button>
+            <button id="pauseBtn">⏸ Pause</button>
+            <button id="resetBtn">⏹ Reset</button>
+        </div>
+        <div class="control-row">
+            <button id="loadSampleBtn" class="load-btn">📄 Load Sample</button>
+            <button id="loadFileBtn" class="load-btn">📁 Load File</button>
+            <input type="file" id="fileInput" accept=".json" style="display: none;">
+        </div>
+        <div class="frame-control">
+            <span class="frame-info">Frame:</span>
+            <input type="range" id="frameSlider" min="0" max="200" value="0" class="frame-slider">
+            <span class="frame-info" id="frameDisplay">0</span>
+        </div>
+        <div id="status">Ready - Load an animation to begin</div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Global variables
+        let scene, camera, renderer, lampRobot;
+        let animationData = null;
+        let currentFrame = 0;
+        let isPlaying = false;
+        let animationId = null;
+        let startTime = 0;
+
+        // DOM elements
+        const canvas = document.getElementById('canvas');
+        const playBtn = document.getElementById('playBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const loadSampleBtn = document.getElementById('loadSampleBtn');
+        const loadFileBtn = document.getElementById('loadFileBtn');
+        const fileInput = document.getElementById('fileInput');
+        const status = document.getElementById('status');
+        const frameSlider = document.getElementById('frameSlider');
+
+        // Sample animation data
+        const sampleAnimation = {
+            "frameRate": 60,
+            "startFrame": 0,
+            "endFrame": 200,
+            "loop": true,
+            "brightness": {
+                "animation": true,
+                "keyframe": [
+                    {
+                        "from_frame": 0,
+                        "to_frame": 100,
+                        "from_value": 0,
+                        "to_value": 100,
+                        "bezier": [0.42, 0.0, 0.58, 1.0]
+                    },
+                    {
+                        "from_frame": 101,
+                        "to_frame": 200,
+                        "from_value": 100,
+                        "to_value": 0,
+                        "bezier": [0.42, 0.0, 1.0, 1.0]
+                    }
+                ]
+            },
+            "rotation": {
+                "animation": true,
+                "keyframe": [
+                    {
+                        "from_frame": 0,
+                        "to_frame": 70,
+                        "from_value": 180,
+                        "to_value": 0,
+                        "bezier": [0.42, 0.0, 0.58, 1.0]
+                    },
+                    {
+                        "from_frame": 71,
+                        "to_frame": 150,
+                        "from_value": 0,
+                        "to_value": 359,
+                        "bezier": [0.42, 0.0, 1.0, 1.0]
+                    },
+                    {
+                        "from_frame": 151,
+                        "to_frame": 200,
+                        "from_value": 359,
+                        "to_value": 180,
+                        "bezier": [0.42, 0.0, 1.0, 1.0]
+                    }
+                ]
+            }
+        };
+
+        // Initialize the scene
+        function init() {
+            // Create scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xFFFFFF);
+
+            // Create camera
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 2, 5);
+
+            // Create renderer
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            // Remove shadow rendering
+            renderer.shadowMap.enabled = false;
+
+            // Add lights
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.8);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
+            directionalLight.position.set(5, 5, 5);
+            // Remove shadow casting
+            scene.add(directionalLight);
+
+            // Create ground with better material for light reception
+            const groundGeometry = new THREE.PlaneGeometry(20, 20);
+            const groundMaterial = new THREE.MeshLambertMaterial({ color: 0xF8F8F8 });
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            scene.add(ground);
+
+            // Create lamp robot
+            createLampRobot();
+
+            // Add event listeners
+            setupEventListeners();
+
+            // Start render loop
+            animate();
+
+            status.textContent = 'Ready - Drop JSON file or click Load Sample';
+        }
+
+        function createLampRobot() {
+            lampRobot = new THREE.Group();
+
+            // 1. BASE - Heavy circular base that sits on the ground
+            const baseGeometry = new THREE.CylinderGeometry(0.4, 0.5, 0.15, 16);
+            const baseMaterial = new THREE.MeshLambertMaterial({ color: 0x2c2c2c });
+            const base = new THREE.Mesh(baseGeometry, baseMaterial);
+            base.position.set(0, 0.075, 0);
+            lampRobot.add(base);
+
+            // 2. VERTICAL POST - Goes from base to hinge point
+            const postGeometry = new THREE.CylinderGeometry(0.04, 0.04, 1.8, 12);
+            const postMaterial = new THREE.MeshLambertMaterial({ color: 0x404040 });
+            const post = new THREE.Mesh(postGeometry, postMaterial);
+            post.position.set(0, 1.05, 0);
+            lampRobot.add(post);
+
+            // 3. HINGE MECHANISM - The pivot point where rotation happens
+            const hingeBaseGeometry = new THREE.CylinderGeometry(0.08, 0.08, 0.12, 12);
+            const hingeMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+            const hingeBase = new THREE.Mesh(hingeBaseGeometry, hingeMaterial);
+            hingeBase.position.set(0, 1.95, 0);
+            lampRobot.add(hingeBase);
+
+            // 4. ROTATION JOINT - This group rotates around Y-axis (horizontal spin)
+            const rotationJoint = new THREE.Group();
+            rotationJoint.position.set(0, 1.95, 0); // At the hinge point
+            lampRobot.add(rotationJoint);
+
+            // 5. TILT MECHANISM - Connects rotation to tilt, allows X-axis rotation (up/down)
+            const tiltJoint = new THREE.Group();
+            tiltJoint.position.set(0, 0, 0); // Relative to rotation joint
+            rotationJoint.add(tiltJoint);
+
+            // 6. ARM ASSEMBLY - The horizontal arm that extends from the hinge
+            const armGeometry = new THREE.CylinderGeometry(0.025, 0.025, 1.2, 8);
+            const armMaterial = new THREE.MeshLambertMaterial({ color: 0x505050 });
+            const arm = new THREE.Mesh(armGeometry, armMaterial);
+            arm.position.set(0, 0, 0.6); // Extends forward from the hinge
+            arm.rotation.x = Math.PI / 2; // Rotate to make it horizontal
+            tiltJoint.add(arm);
+
+            // 7. HEAD MOUNTING BRACKET - Connects arm to head
+            const bracketGeometry = new THREE.BoxGeometry(0.08, 0.06, 0.06);
+            const bracketMaterial = new THREE.MeshLambertMaterial({ color: 0x444444 });
+            const bracket = new THREE.Mesh(bracketGeometry, bracketMaterial);
+            bracket.position.set(0, 0, 1.2);
+            tiltJoint.add(bracket);
+
+            // 8. LAMP HEAD - Circular disk that houses the light
+            const headGeometry = new THREE.CylinderGeometry(0.35, 0.35, 0.08, 20);
+            const headMaterial = new THREE.MeshLambertMaterial({ color: 0xf5f5f5 });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.set(0, 0, 1.2);
+            tiltJoint.add(head);
+
+            // 9. LIGHT BULB - The actual light source (RED)
+            const bulbGeometry = new THREE.SphereGeometry(0.1, 12, 8);
+            const bulbMaterial = new THREE.MeshLambertMaterial({
+                color: 0x444444, // Dark when off
+                emissive: 0x000000,
+                emissiveIntensity: 0
+            });
+            const bulb = new THREE.Mesh(bulbGeometry, bulbMaterial);
+            bulb.position.set(0, -0.02, 1.2);
+            tiltJoint.add(bulb);
+
+            // 10. ENHANCED LIGHT SOURCE - Red point light for floor illumination
+            const pointLight = new THREE.PointLight(0xff0000, 0, 15); // Red light, initially off
+            pointLight.position.set(0, 0, 1.2);
+            tiltJoint.add(pointLight);
+
+            // 11. LIGHT CONE VISUALIZATION - Shows red light casting downward like real lamp
+            const coneGeometry = new THREE.ConeGeometry(0.8, 2.5, 8, 1, true); // Smaller radius and height
+            const coneMaterial = new THREE.MeshBasicMaterial({
+                color: 0xff0000, // Red cone
+                transparent: true,
+                opacity: 0,
+                side: THREE.DoubleSide
+            });
+            const lightCone = new THREE.Mesh(coneGeometry, coneMaterial);
+            lightCone.position.set(0, -1.25, 1.2); // Position below the lamp head
+            lightCone.rotation.x = 0; // Point cone downward (no rotation needed)
+            lightCone.visible = false;
+            tiltJoint.add(lightCone);
+
+            // REMOVED: Electrical cord that was creating unwanted stick on floor
+
+            // Store references for animation - only the joints that move
+            lampRobot.userData = {
+                rotationJoint: rotationJoint,  // Spins horizontally
+                tiltJoint: tiltJoint,          // Tilts up/down
+                bulb: bulb,                    // For brightness changes
+                pointLight: pointLight,        // For light intensity
+                lightCone: lightCone,          // For light cone visibility
+                head: head,                    // Reference to head
+                arm: arm,                      // Reference to arm
+                base: base                     // Reference to base
+            };
+
+            scene.add(lampRobot);
+        }
+
+        function setupEventListeners() {
+            // Control buttons
+            playBtn.addEventListener('click', playAnimation);
+            pauseBtn.addEventListener('click', pauseAnimation);
+            resetBtn.addEventListener('click', resetAnimation);
+            loadSampleBtn.addEventListener('click', loadSampleAnimation);
+            loadFileBtn.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', handleFileInputChange);
+
+            // Drag and drop
+            document.addEventListener('dragover', handleDragOver);
+            document.addEventListener('dragleave', handleDragLeave);
+            document.addEventListener('drop', handleDrop);
+
+            // Window resize
+            window.addEventListener('resize', onWindowResize);
+
+            // Frame slider
+            frameSlider.addEventListener('input', updateFrame);
+            frameSlider.addEventListener('change', updateFrame);
+        }
+
+        function playAnimation() {
+            if (!animationData) return;
+
+            isPlaying = true;
+            startTime = Date.now() - (currentFrame / animationData.frameRate * 1000);
+            status.textContent = 'Playing animation...';
+
+            if (!animationId) {
+                animate();
+            }
+        }
+
+        function pauseAnimation() {
+            isPlaying = false;
+            status.textContent = 'Animation paused';
+        }
+
+        function loadSampleAnimation() {
+            animationData = sampleAnimation;
+            currentFrame = animationData.startFrame;
+
+            // Update frame slider range and position
+            frameSlider.min = animationData.startFrame;
+            frameSlider.max = animationData.endFrame;
+            frameSlider.value = currentFrame;
+
+            applyFrame(currentFrame);
+            status.textContent = `Sample loaded: ${animationData.endFrame - animationData.startFrame + 1} frames`;
+        }
+
+        function handleFileInputChange(event) {
+            const file = event.target.files[0];
+            if (file && file.name.endsWith('.json')) {
+                loadAnimationFromFile(file);
+            } else {
+                status.textContent = 'Please select a JSON file';
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+        }
+
+        function handleDragLeave(event) {
+            event.preventDefault();
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            const file = event.dataTransfer.files[0];
+            if (file && file.name.endsWith('.json')) {
+                loadAnimationFromFile(file);
+            } else {
+                status.textContent = 'Please drop a JSON file';
+            }
+        }
+
+        async function loadAnimationFromFile(file) {
+            try {
+                const reader = new FileReader();
+                reader.onload = async (event) => {
+                    const jsonData = JSON.parse(event.target.result);
+                    animationData = jsonData;
+                    currentFrame = animationData.startFrame;
+
+                    // Update frame slider range and position
+                    frameSlider.min = animationData.startFrame;
+                    frameSlider.max = animationData.endFrame;
+                    frameSlider.value = currentFrame;
+
+                    applyFrame(currentFrame);
+                    status.textContent = `Loaded: ${file.name} (${animationData.endFrame - animationData.startFrame + 1} frames)`;
+                };
+                reader.readAsText(file);
+            } catch (error) {
+                console.error('Error loading animation from file:', error);
+                status.textContent = 'Error loading animation file';
+            }
+        }
+
+        function updateRotation(value) {
+            if (!lampRobot || !lampRobot.userData.rotationJoint) return;
+
+            const rotationJoint = lampRobot.userData.rotationJoint;
+            const angle = (value - 180) * Math.PI / 180;
+
+            // Rotate the entire head assembly horizontally
+            rotationJoint.rotation.y = angle;
+        }
+
+        function updateTilt(value) {
+            if (!lampRobot || !lampRobot.userData.tiltJoint) return;
+
+            const tiltJoint = lampRobot.userData.tiltJoint;
+            const angle = -value * Math.PI / 180; // Negative to make positive values tilt up
+
+            // Tilt the arm and head up/down from horizontal
+            // Negative angle = tilt down, Positive angle = tilt up
+            tiltJoint.rotation.x = angle;
+        }
+
+        function updateBrightness(value) {
+            if (!lampRobot || !lampRobot.userData.bulb) return;
+
+            const bulb = lampRobot.userData.bulb;
+            const pointLight = lampRobot.userData.pointLight;
+            const lightCone = lampRobot.userData.lightCone;
+
+            const intensity = value / 100;
+
+            if (intensity === 0) {
+                // Bulb is completely off
+                bulb.material.emissive.setHex(0x000000);
+                bulb.material.emissiveIntensity = 0;
+                bulb.material.color.setHex(0x444444); // Dark bulb when off
+                pointLight.intensity = 0;
+                if (lightCone) {
+                    lightCone.visible = false;
+                }
+            } else {
+                // Bulb is on - red light with varying intensity
+                const redColor = new THREE.Color(0xff0000); // Pure red
+
+                // Update bulb appearance - gets redder as intensity increases
+                bulb.material.color.setHex(0x444444 + (0xbb0000 * intensity)); // Dark to red
+                bulb.material.emissive.copy(redColor);
+                bulb.material.emissiveIntensity = intensity;
+
+                // Update point light - red with intensity control
+                pointLight.color.copy(redColor);
+                pointLight.intensity = intensity * 4; // Strong red light for floor casting
+
+                // Update light cone - red cone with opacity based on intensity
+                if (lightCone) {
+                    lightCone.material.color.copy(redColor);
+                    lightCone.material.opacity = intensity * 0.25; // More visible red cone
+                    lightCone.visible = true;
+                }
+            }
+        }
+
+        function applyFrame(frame) {
+            if (!animationData) return;
+
+            // Store current values
+            let brightness = 50;
+            let rotation = 180;
+            let tilt = 0;
+
+            // Apply brightness animation
+            if (animationData.brightness && animationData.brightness.animation) {
+                brightness = interpolateProperty(animationData.brightness, frame);
+                updateBrightness(brightness);
+            }
+
+            // Apply rotation animation
+            if (animationData.rotation && animationData.rotation.animation) {
+                rotation = interpolateProperty(animationData.rotation, frame);
+                updateRotation(rotation);
+            }
+
+            // Apply tilt animation
+            if (animationData.tilt && animationData.tilt.animation) {
+                tilt = interpolateProperty(animationData.tilt, frame);
+                updateTilt(tilt);
+            }
+
+            // Update frame slider and display
+            frameSlider.value = frame;
+            document.getElementById('frameDisplay').textContent = frame;
+            currentFrame = frame;
+        }
+
+        function interpolateProperty(property, frame) {
+            if (!property.keyframe || property.keyframe.length === 0) {
+                return 0;
+            }
+
+            for (let i = 0; i < property.keyframe.length; i++) {
+                const keyframe = property.keyframe[i];
+                if (frame >= keyframe.from_frame && frame <= keyframe.to_frame) {
+                    const segmentLength = keyframe.to_frame - keyframe.from_frame;
+                    const frameProgress = frame - keyframe.from_frame;
+                    let t = frameProgress / segmentLength;
+
+                    if (keyframe.bezier && keyframe.bezier.length === 4) {
+                        t = cubicBezier(t, keyframe.bezier[0], keyframe.bezier[1], keyframe.bezier[2], keyframe.bezier[3]);
+                    }
+
+                    return keyframe.from_value + (keyframe.to_value - keyframe.from_value) * t;
+                }
+            }
+
+            const lastKeyframe = property.keyframe[property.keyframe.length - 1];
+            return lastKeyframe.to_value;
+        }
+
+        function cubicBezier(t, p1x, p1y, p2x, p2y) {
+            const cx = 3 * p1x;
+            const bx = 3 * (p2x - p1x) - cx;
+            const ax = 1 - cx - bx;
+            const cy = 3 * p1y;
+            const by = 3 * (p2y - p1y) - cy;
+            const ay = 1 - cy - by;
+
+            const sampleCurveY = (t) => ((ay * t + by) * t + cy) * t;
+            return sampleCurveY(t);
+        }
+
+        function animate() {
+            animationId = requestAnimationFrame(animate);
+
+            if (isPlaying && animationData) {
+                const elapsed = Date.now() - startTime;
+                const frameTime = 1000 / animationData.frameRate;
+                currentFrame = Math.floor(elapsed / frameTime);
+
+                if (currentFrame > animationData.endFrame) {
+                    if (animationData.loop) {
+                        currentFrame = animationData.startFrame;
+                        startTime = Date.now();
+                    } else {
+                        currentFrame = animationData.endFrame;
+                        pauseAnimation();
+                    }
+                }
+
+                applyFrame(currentFrame);
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function updateFrame() {
+            if (!animationData) return;
+            const frame = parseInt(frameSlider.value);
+            if (frame >= animationData.startFrame && frame <= animationData.endFrame) {
+                applyFrame(frame);
+            } else {
+                frameSlider.value = currentFrame; // Snap to nearest valid frame
+            }
+        }
+
+        function resetAnimation() {
+            if (!animationData) return;
+
+            currentFrame = animationData.startFrame;
+            frameSlider.value = currentFrame;
+            applyFrame(currentFrame);
+            status.textContent = 'Animation reset to start';
+        }
+
+        // Initialize the application
+        init();
+    </script>
+</body>
+</html>

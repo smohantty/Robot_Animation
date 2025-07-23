@@ -1,0 +1,91 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Robot Animation Configuration Schema",
+    "type": "object",
+    "required": ["frameRate", "startFrame", "endFrame", "loop"],
+    "properties": {
+      "frameRate": {
+        "type": "number",
+        "minimum": 1,
+        "maximum": 120,
+        "description": "Animation playback rate in frames per second"
+      },
+      "startFrame": {
+        "type": "number",
+        "minimum": 0,
+        "description": "Starting frame number of the animation"
+      },
+      "endFrame": {
+        "type": "number",
+        "minimum": 0,
+        "description": "Ending frame number of the animation"
+      },
+      "loop": {
+        "type": "boolean",
+        "description": "Whether the animation should loop continuously"
+      },
+      "brightness": {
+        "$ref": "#/definitions/animationProperty",
+        "description": "Brightness Property animation configuration range [0.0, 100.0]"
+      },
+      "rotation": {
+        "$ref": "#/definitions/animationProperty",
+        "description": "Motor Rotation Property animation configuration range [0, 359] , 180 degree means robot facing-forward. the value is defined as absolute and mesured counter-clockwise"
+      },
+      "tilt": {
+        "$ref": "#/definitions/animationProperty",
+        "description": "Motor Tilt Property animation configuration range [-30, 90], -ve value => tilt downward, +ve value => tilt upward. 0 => horizontal plane"
+      }
+    },
+    "definitions": {
+      "animationProperty": {
+        "type": "object",
+        "required": ["animation", "keyframe"],
+        "properties": {
+      "animation": {
+        "type": "boolean",
+        "description": "Whether this property should be animated"
+      },
+      "keyframe": {
+        "type": "array",
+        "description": "Array of keyframes defining the animation",
+        "items": {
+          "type": "object",
+          "required": ["from_frame", "to_frame", "from_value", "to_value", "bezier"],
+          "properties": {
+            "from_frame": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Starting frame of this keyframe segment"
+            },
+            "to_frame": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Ending frame of this keyframe segment"
+            },
+            "from_value": {
+              "type": "number",
+              "description": "Starting value of this keyframe segment"
+            },
+            "to_value": {
+              "type": "number",
+              "description": "Ending value of this keyframe segment"
+            },
+            "bezier": {
+              "type": "array",
+              "description": "Bezier curve control points for interpolation, The array contains P1(OutTangent) and P2(Intangent) points of a cubic bezier curve where P1(0.0,0.0), P3(1.0, 1.0) ",
+              "items": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "minItems": 4,
+              "maxItems": 4
+            }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
