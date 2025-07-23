@@ -338,7 +338,90 @@
             animation: float 8s ease-in-out infinite reverse;
         }
 
-        /* Responsive design */
+        /* Property Values Panel */
+        .property-values {
+            position: absolute;
+            bottom: 16px;
+            left: 16px;
+            background: rgba(20, 20, 35, 0.25);
+            backdrop-filter: blur(20px) saturate(180%);
+            padding: 16px 20px;
+            border-radius: 20px;
+            box-shadow:
+                0 12px 40px rgba(0, 0, 0, 0.4),
+                0 4px 12px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            z-index: 1000;
+            min-width: 280px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: float 10s ease-in-out infinite;
+        }
+
+        .property-values:hover {
+            transform: translateY(-3px);
+            background: rgba(20, 20, 35, 0.35);
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                0 8px 24px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .property-values h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 12px;
+            letter-spacing: -0.01em;
+            text-align: center;
+        }
+
+        .property-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+
+        .property-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .property-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #c0c0c0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .property-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: #ffffff;
+            background: rgba(0, 188, 212, 0.2);
+            padding: 3px 10px;
+            border-radius: 16px;
+            border: 1px solid rgba(0, 188, 212, 0.3);
+            min-width: 50px;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+                /* Responsive design */
         @media (max-width: 768px) {
             .info {
                 top: 12px;
@@ -350,14 +433,47 @@
 
             .controls {
                 bottom: 12px;
-                left: 12px;
                 right: 12px;
+                left: auto;
                 width: auto;
+                max-width: calc(100vw - 24px);
                 padding: 16px;
+            }
+
+            .property-values {
+                bottom: 12px;
+                left: 12px;
+                right: auto;
+                min-width: auto;
+                width: auto;
+                max-width: calc(100vw - 24px);
             }
 
             .control-row {
                 flex-direction: column;
+            }
+
+            .property-grid {
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 6px;
+            }
+
+            .property-item {
+                flex-direction: column;
+                gap: 4px;
+                text-align: center;
+                padding: 6px 8px;
+            }
+
+            .property-label {
+                font-size: 10px;
+                justify-content: center;
+            }
+
+            .property-value {
+                font-size: 11px;
+                padding: 2px 8px;
+                min-width: 40px;
             }
         }
 
@@ -369,6 +485,10 @@
 
             .info {
                 max-width: 250px;
+            }
+
+            .property-values {
+                min-width: 240px;
             }
         }
 
@@ -421,6 +541,24 @@
         <div id="status" class="status">Ready - Load an animation to begin</div>
     </div>
 
+    <div class="property-values">
+        <h4>Current Properties</h4>
+        <div class="property-grid">
+            <div class="property-item">
+                <span class="property-label">💡 Brightness</span>
+                <span class="property-value" id="brightnessValue">50%</span>
+            </div>
+            <div class="property-item">
+                <span class="property-label">🔄 Rotation</span>
+                <span class="property-value" id="rotationValue">180°</span>
+            </div>
+            <div class="property-item">
+                <span class="property-label">↕️ Tilt</span>
+                <span class="property-value" id="tiltValue">0°</span>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
         // Global variables
@@ -441,6 +579,9 @@
         const fileInput = document.getElementById('fileInput');
         const status = document.getElementById('status');
         const frameSlider = document.getElementById('frameSlider');
+        const brightnessValue = document.getElementById('brightnessValue');
+        const rotationValue = document.getElementById('rotationValue');
+        const tiltValue = document.getElementById('tiltValue');
 
         // Sample animation data
         const sampleAnimation = {
@@ -835,7 +976,17 @@
             if (!lampRobot || !lampRobot.userData.rotationJoint) return;
 
             const rotationJoint = lampRobot.userData.rotationJoint;
-            const angle = (value - 180) * Math.PI / 180;
+
+            // Normalize rotation to 0-359 range
+            let normalizedValue = value % 360;
+            if (normalizedValue < 0) normalizedValue += 360;
+
+            const angle = (normalizedValue - 180) * Math.PI / 180;
+
+            // Update display value
+            if (rotationValue) {
+                rotationValue.textContent = `${Math.round(normalizedValue)}°`;
+            }
 
             // Rotate the entire head assembly horizontally
             rotationJoint.rotation.y = angle;
@@ -845,7 +996,15 @@
             if (!lampRobot || !lampRobot.userData.tiltJoint) return;
 
             const tiltJoint = lampRobot.userData.tiltJoint;
-            const angle = -value * Math.PI / 180; // Negative to make positive values tilt up
+
+            // Clamp tilt value to safe range to prevent extreme positions
+            const clampedValue = Math.max(-30, Math.min(90, value));
+            const angle = -clampedValue * Math.PI / 180; // Negative to make positive values tilt up
+
+            // Update display value
+            if (tiltValue) {
+                tiltValue.textContent = `${Math.round(clampedValue)}°`;
+            }
 
             // Tilt the arm and head up/down from horizontal
             // Negative angle = tilt down, Positive angle = tilt up
@@ -860,7 +1019,14 @@
             const lightCone = lampRobot.userData.lightCone;
             const scale = lampRobot.userData.scale;
 
-            const intensity = value / 100;
+            // Clamp brightness to 0-100 range
+            const clampedValue = Math.max(0, Math.min(100, value));
+            const intensity = clampedValue / 100;
+
+            // Update display value
+            if (brightnessValue) {
+                brightnessValue.textContent = `${Math.round(clampedValue)}%`;
+            }
 
             if (intensity === 0) {
                 // Bulb is completely off
@@ -919,10 +1085,15 @@
                 updateTilt(tilt);
             }
 
-            // Update frame slider and display
-            frameSlider.value = frame;
-            document.getElementById('frameDisplay').textContent = frame;
-            currentFrame = frame;
+                            // Update frame slider and display
+                frameSlider.value = frame;
+                document.getElementById('frameDisplay').textContent = frame;
+                currentFrame = frame;
+
+                // Update property value displays
+                brightnessValue.textContent = `${Math.round(brightness)}%`;
+                rotationValue.textContent = `${Math.round(rotation)}°`;
+                tiltValue.textContent = `${Math.round(tilt)}°`;
         }
 
         function interpolateProperty(property, frame) {
