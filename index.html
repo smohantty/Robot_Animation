@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lamp Robot Animation</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
         * {
             margin: 0;
             padding: 0;
@@ -12,9 +14,11 @@
         }
 
         body {
-            background: white;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             overflow: hidden;
-            font-family: Arial, sans-serif;
+            height: 100vh;
+            color: #333;
         }
 
         #canvas {
@@ -25,99 +29,304 @@
 
         .info {
             position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 14px;
+            top: 24px;
+            left: 24px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 20px 24px;
+            border-radius: 16px;
+            box-shadow:
+                0 4px 20px rgba(0, 0, 0, 0.08),
+                0 1px 4px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             z-index: 1000;
+            max-width: 320px;
+        }
+
+        .info h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
+
+        .info p {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .info .feature {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+            font-size: 13px;
+            color: #555;
+        }
+
+        .info .feature::before {
+            content: '•';
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 8px;
         }
 
         .controls {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            font-size: 14px;
+            bottom: 24px;
+            left: 24px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 24px;
+            border-radius: 20px;
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.12),
+                0 2px 8px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             z-index: 1000;
-            min-width: 350px;
+            min-width: 400px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .controls:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 12px 40px rgba(0, 0, 0, 0.15),
+                0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .controls h4 {
-            margin: 0 0 15px 0;
-            color: #ffd700;
             font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            letter-spacing: -0.01em;
+        }
+
+        .control-section {
+            margin-bottom: 20px;
+        }
+
+        .control-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
         }
 
         .control-row {
             display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
         }
 
-        .controls button {
-            background: #4CAF50;
+        .btn {
+            flex: 1;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 5px;
+            padding: 12px 16px;
+            border-radius: 12px;
             cursor: pointer;
-            font-size: 12px;
-            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: inherit;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
         }
 
-        .controls button:hover {
-            background: #45a049;
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
         }
 
-        .controls button:disabled {
-            background: #666;
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            transition: transform 0.1s;
+        }
+
+        .btn:disabled {
+            background: #e0e0e0;
+            color: #999;
             cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
         }
 
-        .load-btn {
-            background: #2196F3 !important;
+        .btn-secondary {
+            background: linear-gradient(135deg, #42a5f5, #1e88e5);
+            box-shadow: 0 2px 8px rgba(66, 165, 245, 0.3);
         }
 
-        .load-btn:hover {
-            background: #1976D2 !important;
+        .btn-secondary:hover {
+            box-shadow: 0 4px 16px rgba(66, 165, 245, 0.4);
         }
 
         .frame-control {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+        }
+
+        .frame-control-header {
             display: flex;
+            justify-content: between;
             align-items: center;
-            gap: 10px;
-            margin-top: 10px;
+            margin-bottom: 12px;
+        }
+
+        .frame-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .frame-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+            background: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid #e0e0e0;
+            min-width: 50px;
+            text-align: center;
         }
 
         .frame-slider {
-            flex: 1;
+            width: 100%;
             height: 6px;
-            background: #ddd;
+            background: #e0e0e0;
             border-radius: 3px;
             outline: none;
             -webkit-appearance: none;
+            position: relative;
+        }
+
+        .frame-slider::-webkit-slider-track {
+            height: 6px;
+            border-radius: 3px;
+            background: #e0e0e0;
         }
 
         .frame-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 16px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
-            background: #ffd700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             cursor: pointer;
+            box-shadow:
+                0 2px 8px rgba(102, 126, 234, 0.3),
+                0 0 0 0px rgba(102, 126, 234, 0.2);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .frame-info {
-            font-size: 11px;
-            color: #ccc;
-            min-width: 80px;
+        .frame-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            box-shadow:
+                0 4px 12px rgba(102, 126, 234, 0.4),
+                0 0 0 8px rgba(102, 126, 234, 0.1);
+        }
+
+        .frame-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .status {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            color: #495057;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            border: 1px solid #dee2e6;
+            margin-top: 16px;
+            text-align: center;
+        }
+
+        .status.success {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+
+        .status.error {
+            background: linear-gradient(135deg, #f8d7da, #f1b0b7);
+            color: #721c24;
+            border-color: #f1b0b7;
+        }
+
+        /* Loading animation */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .loading {
+            animation: pulse 2s infinite;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .info {
+                top: 16px;
+                left: 16px;
+                right: 16px;
+                max-width: none;
+            }
+
+            .controls {
+                bottom: 16px;
+                left: 16px;
+                right: 16px;
+                min-width: auto;
+            }
+
+            .control-row {
+                flex-direction: column;
+            }
+        }
+
+        /* Focus states for accessibility */
+        .btn:focus,
+        .frame-slider:focus {
+            outline: 2px solid #667eea;
+            outline-offset: 2px;
         }
     </style>
 </head>
@@ -125,32 +334,41 @@
     <canvas id="canvas"></canvas>
 
     <div class="info">
-        <div><strong>Lamp Robot Animation Viewer</strong></div>
-        <div style="font-size: 12px; margin-top: 5px;">
-            • <strong>Load Sample:</strong> Test with built-in animation<br>
-            • <strong>Load File:</strong> Browse for your own JSON files<br>
-            • <strong>Frame Slider:</strong> Manual frame-by-frame control
-        </div>
+        <h1>Lamp Robot Animation Viewer</h1>
+        <div class="feature">Load Sample: Test with built-in animation</div>
+        <div class="feature">Load File: Browse for your own JSON files</div>
+        <div class="feature">Frame Slider: Manual frame-by-frame control</div>
     </div>
 
     <div class="controls">
         <h4>Animation Controls</h4>
-        <div class="control-row">
-            <button id="playBtn">▶ Play</button>
-            <button id="pauseBtn">⏸ Pause</button>
-            <button id="resetBtn">⏹ Reset</button>
+        <div class="control-section">
+            <div class="section-label">Playback</div>
+            <div class="control-row">
+                <button id="playBtn" class="btn">▶ Play</button>
+                <button id="pauseBtn" class="btn">⏸ Pause</button>
+                <button id="resetBtn" class="btn">⏹ Reset</button>
+            </div>
         </div>
-        <div class="control-row">
-            <button id="loadSampleBtn" class="load-btn">📄 Load Sample</button>
-            <button id="loadFileBtn" class="load-btn">📁 Load File</button>
-            <input type="file" id="fileInput" accept=".json" style="display: none;">
+        <div class="control-section">
+            <div class="section-label">Animation Source</div>
+            <div class="control-row">
+                <button id="loadSampleBtn" class="btn">📄 Load Sample</button>
+                <button id="loadFileBtn" class="btn btn-secondary">�� Load File</button>
+                <input type="file" id="fileInput" accept=".json" style="display: none;">
+            </div>
         </div>
-        <div class="frame-control">
-            <span class="frame-info">Frame:</span>
-            <input type="range" id="frameSlider" min="0" max="200" value="0" class="frame-slider">
-            <span class="frame-info" id="frameDisplay">0</span>
+        <div class="control-section">
+            <div class="section-label">Frame Control</div>
+            <div class="frame-control">
+                <div class="frame-control-header">
+                    <span class="frame-label">Current Frame</span>
+                    <span class="frame-value" id="frameDisplay">0</span>
+                </div>
+                <input type="range" id="frameSlider" min="0" max="200" value="0" class="frame-slider">
+            </div>
         </div>
-        <div id="status">Ready - Load an animation to begin</div>
+        <div id="status" class="status">Ready - Load an animation to begin</div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -268,7 +486,7 @@
             // Start render loop
             animate();
 
-            status.textContent = 'Ready - Drop JSON file or click Load Sample';
+            status.textContent = 'Ready - Load an animation to begin';
         }
 
         function createLampRobot() {
@@ -401,7 +619,8 @@
 
             isPlaying = true;
             startTime = Date.now() - (currentFrame / animationData.frameRate * 1000);
-            status.textContent = 'Playing animation...';
+            status.textContent = '▶ Playing animation...';
+            status.className = 'status success';
 
             if (!animationId) {
                 animate();
@@ -410,7 +629,18 @@
 
         function pauseAnimation() {
             isPlaying = false;
-            status.textContent = 'Animation paused';
+            status.textContent = '⏸ Animation paused';
+            status.className = 'status';
+        }
+
+        function resetAnimation() {
+            if (!animationData) return;
+
+            currentFrame = animationData.startFrame;
+            frameSlider.value = currentFrame;
+            applyFrame(currentFrame);
+            status.textContent = '⏹ Animation reset to start';
+            status.className = 'status';
         }
 
         function loadSampleAnimation() {
@@ -423,7 +653,52 @@
             frameSlider.value = currentFrame;
 
             applyFrame(currentFrame);
-            status.textContent = `Sample loaded: ${animationData.endFrame - animationData.startFrame + 1} frames`;
+            status.textContent = `✅ Sample loaded: ${animationData.endFrame - animationData.startFrame + 1} frames`;
+            status.className = 'status success';
+        }
+
+        async function loadAnimationFromFile(file) {
+            try {
+                status.textContent = '⏳ Loading animation file...';
+                status.className = 'status loading';
+
+                const reader = new FileReader();
+                reader.onload = async (event) => {
+                    try {
+                        const jsonData = JSON.parse(event.target.result);
+                        animationData = jsonData;
+                        currentFrame = animationData.startFrame;
+
+                        // Update frame slider range and position
+                        frameSlider.min = animationData.startFrame;
+                        frameSlider.max = animationData.endFrame;
+                        frameSlider.value = currentFrame;
+
+                        applyFrame(currentFrame);
+                        status.textContent = `✅ Loaded: ${file.name} (${animationData.endFrame - animationData.startFrame + 1} frames)`;
+                        status.className = 'status success';
+                    } catch (parseError) {
+                        status.textContent = '❌ Invalid JSON file format';
+                        status.className = 'status error';
+                    }
+                };
+                reader.readAsText(file);
+            } catch (error) {
+                console.error('Error loading animation from file:', error);
+                status.textContent = '❌ Error loading animation file';
+                status.className = 'status error';
+            }
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            const file = event.dataTransfer.files[0];
+            if (file && file.name.endsWith('.json')) {
+                loadAnimationFromFile(file);
+            } else {
+                status.textContent = '❌ Please drop a valid JSON file';
+                status.className = 'status error';
+            }
         }
 
         function handleFileInputChange(event) {
@@ -431,7 +706,8 @@
             if (file && file.name.endsWith('.json')) {
                 loadAnimationFromFile(file);
             } else {
-                status.textContent = 'Please select a JSON file';
+                status.textContent = '❌ Please select a valid JSON file';
+                status.className = 'status error';
             }
         }
 
@@ -441,39 +717,6 @@
 
         function handleDragLeave(event) {
             event.preventDefault();
-        }
-
-        function handleDrop(event) {
-            event.preventDefault();
-            const file = event.dataTransfer.files[0];
-            if (file && file.name.endsWith('.json')) {
-                loadAnimationFromFile(file);
-            } else {
-                status.textContent = 'Please drop a JSON file';
-            }
-        }
-
-        async function loadAnimationFromFile(file) {
-            try {
-                const reader = new FileReader();
-                reader.onload = async (event) => {
-                    const jsonData = JSON.parse(event.target.result);
-                    animationData = jsonData;
-                    currentFrame = animationData.startFrame;
-
-                    // Update frame slider range and position
-                    frameSlider.min = animationData.startFrame;
-                    frameSlider.max = animationData.endFrame;
-                    frameSlider.value = currentFrame;
-
-                    applyFrame(currentFrame);
-                    status.textContent = `Loaded: ${file.name} (${animationData.endFrame - animationData.startFrame + 1} frames)`;
-                };
-                reader.readAsText(file);
-            } catch (error) {
-                console.error('Error loading animation from file:', error);
-                status.textContent = 'Error loading animation file';
-            }
         }
 
         function updateRotation(value) {
@@ -643,15 +886,6 @@
             } else {
                 frameSlider.value = currentFrame; // Snap to nearest valid frame
             }
-        }
-
-        function resetAnimation() {
-            if (!animationData) return;
-
-            currentFrame = animationData.startFrame;
-            frameSlider.value = currentFrame;
-            applyFrame(currentFrame);
-            status.textContent = 'Animation reset to start';
         }
 
         // Initialize the application
