@@ -421,6 +421,104 @@
             transition: all 0.2s ease;
         }
 
+        /* Drag and Drop Overlay */
+        .drop-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .drop-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .drop-zone {
+            background: rgba(20, 20, 35, 0.9);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 3px dashed rgba(0, 188, 212, 0.6);
+            border-radius: 24px;
+            padding: 60px 80px;
+            text-align: center;
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                0 8px 24px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transform: scale(0.8);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: dropPulse 2s ease-in-out infinite;
+        }
+
+        .drop-overlay.show .drop-zone {
+            transform: scale(1);
+        }
+
+        .drop-zone.drag-over {
+            border-color: #64ffda;
+            background: rgba(0, 188, 212, 0.1);
+            transform: scale(1.05);
+            animation: none;
+            box-shadow:
+                0 30px 80px rgba(0, 188, 212, 0.3),
+                0 12px 32px rgba(0, 188, 212, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                0 0 40px rgba(100, 255, 218, 0.3);
+        }
+
+        .drop-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            animation: bounce 1s ease-in-out infinite alternate;
+        }
+
+        .drop-text {
+            font-size: 24px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
+
+        .drop-subtext {
+            font-size: 14px;
+            color: #b0b0b0;
+            font-weight: 400;
+        }
+
+        @keyframes dropPulse {
+            0%, 100% {
+                border-color: rgba(0, 188, 212, 0.6);
+                box-shadow:
+                    0 20px 60px rgba(0, 0, 0, 0.5),
+                    0 8px 24px rgba(0, 0, 0, 0.3),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            }
+            50% {
+                border-color: rgba(0, 188, 212, 0.8);
+                box-shadow:
+                    0 20px 60px rgba(0, 0, 0, 0.5),
+                    0 8px 24px rgba(0, 0, 0, 0.3),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                    0 0 30px rgba(0, 188, 212, 0.2);
+            }
+        }
+
+        @keyframes bounce {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-8px); }
+        }
+
                 /* Responsive design */
         @media (max-width: 768px) {
             .info {
@@ -507,6 +605,7 @@
         <h1>Lamp Robot Animation Viewer</h1>
         <div class="feature">Load Sample: Test with built-in animation</div>
         <div class="feature">Load File: Browse for your own JSON files</div>
+        <div class="feature">Drag & Drop: Drop JSON files anywhere</div>
         <div class="feature">Frame Slider: Manual frame-by-frame control</div>
     </div>
 
@@ -559,6 +658,15 @@
         </div>
     </div>
 
+    <!-- Drag and Drop Overlay -->
+    <div id="dropOverlay" class="drop-overlay">
+        <div class="drop-zone">
+            <div class="drop-icon">📁</div>
+            <div class="drop-text">Drop JSON Animation File Here</div>
+            <div class="drop-subtext">Supports .json animation files</div>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
         // Global variables
@@ -582,6 +690,8 @@
         const brightnessValue = document.getElementById('brightnessValue');
         const rotationValue = document.getElementById('rotationValue');
         const tiltValue = document.getElementById('tiltValue');
+        const dropOverlay = document.getElementById('dropOverlay');
+        const dropZone = dropOverlay.querySelector('.drop-zone');
 
         // Sample animation data
         const sampleAnimation = {
@@ -855,6 +965,7 @@
             fileInput.addEventListener('change', handleFileInputChange);
 
             // Drag and drop
+            document.addEventListener('dragenter', handleDragEnter);
             document.addEventListener('dragover', handleDragOver);
             document.addEventListener('dragleave', handleDragLeave);
             document.addEventListener('drop', handleDrop);
@@ -865,6 +976,9 @@
             // Frame slider
             frameSlider.addEventListener('input', updateFrame);
             frameSlider.addEventListener('change', updateFrame);
+
+            // Keyboard support
+            document.addEventListener('keydown', handleKeyDown);
         }
 
         function playAnimation() {
@@ -945,6 +1059,8 @@
 
         function handleDrop(event) {
             event.preventDefault();
+            hideDropOverlay();
+
             const file = event.dataTransfer.files[0];
             if (file && file.name.endsWith('.json')) {
                 loadAnimationFromFile(file);
@@ -966,10 +1082,40 @@
 
         function handleDragOver(event) {
             event.preventDefault();
+            if (!dropOverlay.classList.contains('show')) {
+                showDropOverlay();
+            }
+            dropZone.classList.add('drag-over');
+        }
+
+        function handleDragEnter(event) {
+            event.preventDefault();
+            showDropOverlay();
         }
 
         function handleDragLeave(event) {
             event.preventDefault();
+            // Only hide if we're leaving the window entirely
+            if (event.clientX === 0 || event.clientY === 0 ||
+                event.clientX === window.innerWidth || event.clientY === window.innerHeight) {
+                hideDropOverlay();
+            }
+            dropZone.classList.remove('drag-over');
+        }
+
+        function showDropOverlay() {
+            dropOverlay.classList.add('show');
+        }
+
+        function hideDropOverlay() {
+            dropOverlay.classList.remove('show');
+            dropZone.classList.remove('drag-over');
+        }
+
+        function handleKeyDown(event) {
+            if (event.key === 'Escape' && dropOverlay.classList.contains('show')) {
+                hideDropOverlay();
+            }
         }
 
         function updateRotation(value) {
