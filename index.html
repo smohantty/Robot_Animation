@@ -866,6 +866,616 @@
             border-color: rgba(255, 255, 255, 0.3);
         }
 
+
+
+        /* Animation Editor Iframe Modal */
+        .editor-iframe-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .editor-iframe-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .editor-iframe-content {
+            background: rgba(15, 15, 25, 0.95);
+            backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            width: calc(100vw - 20px);
+            height: calc(100vh - 20px);
+            max-width: none;
+            max-height: none;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+        }
+
+        .editor-iframe-modal.show .editor-iframe-content {
+            transform: scale(1);
+        }
+
+        .editor-iframe-header {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            min-height: 60px;
+        }
+
+        .editor-iframe-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #ffffff;
+            margin: 0;
+        }
+
+        .editor-iframe-close {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            border-radius: 8px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .editor-iframe-close:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .editor-iframe-body {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            min-height: 0; /* Allow flexbox to shrink if needed */
+        }
+
+        .editor-iframe-body iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: transparent;
+            display: block; /* Remove any inline spacing */
+        }
+
+        /* Animation Editor */
+        .editor-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .editor-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .editor-content {
+            background: rgba(15, 15, 25, 0.95);
+            backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            width: 95vw;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transform: scale(0.9);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+        }
+
+        .editor-modal.show .editor-content {
+            transform: scale(1);
+        }
+
+        .editor-header {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 16px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .editor-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #ffffff;
+            margin: 0;
+        }
+
+        .editor-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .editor-close {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            border-radius: 8px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .editor-close:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .editor-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .editor-timeline {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(10, 10, 20, 0.8);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .timeline-header {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .timeline-config {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .config-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .config-label {
+            font-size: 12px;
+            color: #a0a0a0;
+            font-weight: 500;
+        }
+
+        .config-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            padding: 4px 8px;
+            color: #ffffff;
+            font-size: 12px;
+            width: 60px;
+        }
+
+        .timeline-ruler {
+            background: rgba(0, 0, 0, 0.3);
+            height: 30px;
+            position: relative;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-x: auto;
+            width: 100%;
+        }
+
+        .ruler-marks {
+            height: 100%;
+            position: relative;
+            min-width: 100%;
+        }
+
+        .frame-mark {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            border-left: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: flex-end;
+            padding-bottom: 4px;
+        }
+
+        .frame-number {
+            font-size: 10px;
+            color: #888;
+            margin-left: 2px;
+        }
+
+        .timeline-tracks {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .property-track {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            min-height: 60px;
+            display: flex;
+        }
+
+        .track-label {
+            width: 120px;
+            background: rgba(255, 255, 255, 0.03);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 8px 12px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #ffffff;
+        }
+
+        .track-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: #ffffff;
+            margin-bottom: 2px;
+        }
+
+        .track-value {
+            font-size: 11px;
+            font-weight: 600;
+            color: #64ffda;
+            background: rgba(100, 255, 218, 0.15);
+            padding: 2px 6px;
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            width: fit-content;
+        }
+
+        .track-timeline {
+            flex: 1;
+            position: relative;
+            background: rgba(0, 0, 0, 0.2);
+            cursor: crosshair;
+        }
+
+        .keyframe {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #00bcd4;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            cursor: grab;
+            transform: translate(-50%, -50%);
+            top: 50%;
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+
+        .keyframe:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+            box-shadow: 0 0 10px rgba(0, 188, 212, 0.5);
+        }
+
+        .keyframe.selected {
+            background: #ff9800;
+            box-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
+        }
+
+        .keyframe:active {
+            cursor: grabbing;
+        }
+
+        .playhead {
+            position: absolute;
+            top: 0;
+            width: 2px;
+            background: #ff4444;
+            z-index: 100;
+            height: 100%;
+            cursor: ew-resize;
+        }
+
+        .playhead-handle {
+            position: absolute;
+            top: 4px;
+            left: -6px;
+            width: 12px;
+            height: 12px;
+            background: #ff4444;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            cursor: grab;
+            box-shadow: 0 0 8px rgba(255, 68, 68, 0.5);
+            z-index: 101;
+        }
+
+        .playhead-handle:active {
+            cursor: grabbing;
+        }
+
+        .playhead-frame-display {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            margin-bottom: 8px;
+            border: 1px solid #ff4444;
+            z-index: 102;
+        }
+
+        .playhead::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: -4px;
+            width: 0;
+            height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 6px solid #ff4444;
+        }
+
+        .editor-sidebar {
+            width: 300px;
+            min-width: 300px;
+            max-width: 300px;
+            background: rgba(20, 20, 35, 0.9);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+            margin: 0;
+        }
+
+        .sidebar-content {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .keyframe-editor {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .keyframe-editor h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+            margin: 0 0 12px 0;
+        }
+
+        .editor-field {
+            margin-bottom: 12px;
+        }
+
+        .editor-field label {
+            display: block;
+            font-size: 12px;
+            color: #a0a0a0;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        .editor-field input,
+        .editor-field select {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            padding: 8px 10px;
+            color: #ffffff;
+            font-size: 13px;
+        }
+
+        .editor-field input:focus,
+        .editor-field select:focus {
+            outline: none;
+            border-color: #00bcd4;
+            box-shadow: 0 0 0 2px rgba(0, 188, 212, 0.2);
+        }
+
+        .easing-presets {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .easing-preset {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            padding: 6px 8px;
+            font-size: 11px;
+            color: #ffffff;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .easing-preset:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .easing-preset.active {
+            background: rgba(0, 188, 212, 0.3);
+            border-color: #00bcd4;
+        }
+
+        /* Easing Curve Preview */
+        .curve-preview {
+            position: fixed;
+            background: rgba(10, 10, 20, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            z-index: 10000;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .curve-preview.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .curve-preview-title {
+            font-size: 11px;
+            color: #a0a0a0;
+            margin-bottom: 8px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .curve-svg {
+            width: 120px;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+        }
+
+        .curve-path {
+            fill: none;
+            stroke: #64ffda;
+            stroke-width: 2;
+            stroke-linecap: round;
+        }
+
+        .curve-grid {
+            stroke: rgba(255, 255, 255, 0.1);
+            stroke-width: 0.5;
+        }
+
+        .curve-handles {
+            fill: #ff9800;
+            stroke: #ffffff;
+            stroke-width: 1;
+        }
+
+        .editor-actions {
+            padding: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-editor {
+            flex: 1;
+            background: linear-gradient(135deg, #4caf50, #45a049);
+            border: none;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn-editor:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-editor.secondary {
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+        }
+
+        .btn-editor.secondary:hover {
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+        }
+
+        /* Timeline scrollbar */
+        .timeline-ruler::-webkit-scrollbar,
+        .timeline-tracks::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+
+        .timeline-ruler::-webkit-scrollbar-track,
+        .timeline-tracks::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .timeline-ruler::-webkit-scrollbar-thumb,
+        .timeline-tracks::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+
+        .timeline-ruler::-webkit-scrollbar-thumb:hover,
+        .timeline-tracks::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
         .schema-actions {
             margin-top: 20px;
             display: flex;
@@ -967,6 +1577,7 @@
             </div>
             <div class="control-row">
                 <button id="schemaBtn" class="btn btn-secondary">📋 View Schema</button>
+                <button id="editorBtn" class="btn btn-secondary">🎬 Animation Editor</button>
             </div>
         </div>
         <div class="control-section">
@@ -1009,7 +1620,7 @@
         </div>
     </div>
 
-    <!-- Schema Modal -->
+        <!-- Schema Modal -->
     <div id="schemaModal" class="schema-modal">
         <div class="schema-content">
             <div class="schema-header">
@@ -1035,6 +1646,142 @@
         </div>
     </div>
 
+    <!-- Animation Editor Iframe Modal -->
+    <div id="editorIframeModal" class="editor-iframe-modal">
+        <div class="editor-iframe-content">
+            <div class="editor-iframe-header">
+                <h2 class="editor-iframe-title">🎬 Animation Editor</h2>
+                <button class="editor-iframe-close" id="editorIframeCloseBtn">✕ Close</button>
+            </div>
+            <div class="editor-iframe-body">
+                <iframe id="editorIframe" src="" frameborder="0" width="100%" height="100%"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Animation Editor Modal -->
+    <div id="editorModal" class="editor-modal">
+        <div class="editor-content">
+            <div class="editor-header">
+                <h2 class="editor-title">🎬 Animation Editor</h2>
+                <div class="editor-controls">
+                    <button id="editorPlayBtn" class="btn">▶ Play</button>
+                    <button id="editorPauseBtn" class="btn">⏸ Pause</button>
+                    <button id="editorResetBtn" class="btn">⏹ Reset</button>
+                    <button class="editor-close" id="editorCloseBtn">✕ Close</button>
+                </div>
+            </div>
+            <div class="editor-body">
+                <div class="editor-timeline">
+                    <div class="timeline-header">
+                        <div class="timeline-config">
+                            <div class="config-group">
+                                <span class="config-label">Frame Rate:</span>
+                                <input type="number" id="editorFrameRate" class="config-input" value="60" min="1" max="120">
+                            </div>
+                            <div class="config-group">
+                                <span class="config-label">Start:</span>
+                                <input type="number" id="editorStartFrame" class="config-input" value="0" min="0">
+                            </div>
+                            <div class="config-group">
+                                <span class="config-label">End:</span>
+                                <input type="number" id="editorEndFrame" class="config-input" value="200" min="1">
+                            </div>
+                            <div class="config-group">
+                                <label style="display: flex; align-items: center; gap: 6px; color: #a0a0a0; font-size: 12px;">
+                                    <input type="checkbox" id="editorLoop" checked style="margin: 0;">
+                                    Loop
+                                </label>
+                            </div>
+                            <div class="config-group">
+                                <span class="config-label">Zoom:</span>
+                                <span id="zoomLevel" class="config-label" style="color: #64ffda;">5px/frame</span>
+                            </div>
+                            <div class="config-group">
+                                <span class="config-label" style="font-size: 11px; color: #888;" title="Keyboard Shortcuts: Space=Play/Pause, ←/→=Step Frame, Shift+←/→=Jump Keyframes, Home/End=Start/End">⌨️ Shortcuts</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="timeline-ruler" id="timelineRuler">
+                        <div class="ruler-marks" id="rulerMarks"></div>
+                    </div>
+                    <div class="timeline-tracks" id="timelineTracks">
+                        <div class="property-track" data-property="brightness">
+                            <div class="track-label">
+                                <span class="track-name">💡 Brightness</span>
+                                <span class="track-value" id="trackBrightness">50%</span>
+                            </div>
+                            <div class="track-timeline" id="brightnessTrack"></div>
+                        </div>
+                        <div class="property-track" data-property="rotation">
+                            <div class="track-label">
+                                <span class="track-name">🔄 Rotation</span>
+                                <span class="track-value" id="trackRotation">180°</span>
+                            </div>
+                            <div class="track-timeline" id="rotationTrack"></div>
+                        </div>
+                        <div class="property-track" data-property="tilt">
+                            <div class="track-label">
+                                <span class="track-name">↕️ Tilt</span>
+                                <span class="track-value" id="trackTilt">0°</span>
+                            </div>
+                            <div class="track-timeline" id="tiltTrack"></div>
+                        </div>
+                        <div class="playhead" id="playhead" style="left: 120px;">
+                            <div class="playhead-handle" id="playheadHandle"></div>
+                            <div class="playhead-frame-display" id="playheadFrameDisplay">Frame 0</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="editor-sidebar">
+                    <div class="sidebar-header">
+                        <h3 class="sidebar-title">Keyframe Editor</h3>
+                    </div>
+                                        <div class="sidebar-content" id="sidebarContent">
+                        <!-- Keyframe Editor - Shows when keyframe selected -->
+                        <div id="keyframeEditorSection" style="display: none;"></div>
+
+                        <!-- No Selection Message -->
+                        <div id="noKeyframeSelected" style="text-align: center; color: #888; padding: 20px;">
+                            Click on a keyframe or add a new one to edit properties
+                        </div>
+                    </div>
+                    <div class="editor-actions">
+                        <button id="addKeyframeBtn" class="btn-editor">+ Add Keyframe</button>
+                        <button id="deleteKeyframeBtn" class="btn-editor secondary">🗑 Delete</button>
+                    </div>
+                    <div class="editor-actions">
+                        <button id="exportJsonBtn" class="btn-editor">📤 Export JSON</button>
+                        <button id="loadToViewerBtn" class="btn-editor secondary">▶ Load to Viewer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- Curve Preview Tooltip -->
+    <div id="curvePreview" class="curve-preview" style="display: none;">
+        <div class="curve-preview-title" id="curveTitle">Ease</div>
+        <svg class="curve-svg" id="curveSvg" viewBox="0 0 100 80">
+            <!-- Grid lines -->
+            <defs>
+                <pattern id="grid" width="10" height="8" patternUnits="userSpaceOnUse">
+                    <path d="M 10 0 L 0 0 0 8" fill="none" class="curve-grid"/>
+                </pattern>
+            </defs>
+            <rect width="100" height="80" fill="url(#grid)"/>
+
+            <!-- Curve path -->
+            <path id="curvePath" class="curve-path" d="M 10,70 Q 35,70 90,10"/>
+
+            <!-- Control points -->
+            <circle class="curve-handles" cx="10" cy="70" r="2"/>
+            <circle class="curve-handles" cx="90" cy="10" r="2"/>
+            <circle id="handle1" class="curve-handles" cx="35" cy="70" r="2"/>
+            <circle id="handle2" class="curve-handles" cx="65" cy="40" r="2"/>
+        </svg>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
         // Global variables
@@ -1045,6 +1792,23 @@
         let animationId = null;
         let startTime = 0;
         let showReadableView = true;
+
+        // Animation Editor state
+        let editorKeyframes = {
+            brightness: [],
+            rotation: [],
+            tilt: []
+        };
+        let selectedKeyframe = null;
+        let editorCurrentFrame = 0;
+        let editorIsPlaying = false;
+        let editorStartTime = 0;
+        let editorAnimationId = null;
+        let timelineWidth = 1000;
+        let pixelsPerFrame = 5;
+        let isDraggingPlayhead = false;
+        let dragStartX = 0;
+        let dragStartFrame = 0;
 
         // DOM elements
         const canvas = document.getElementById('canvas');
@@ -1069,6 +1833,43 @@
         const schemaJson = document.getElementById('schemaJson');
         const schemaReadable = document.getElementById('schemaReadable');
         const toggleViewBtn = document.getElementById('toggleViewBtn');
+
+        // Animation Editor elements
+        const editorBtn = document.getElementById('editorBtn');
+        const editorModal = document.getElementById('editorModal');
+        const editorCloseBtn = document.getElementById('editorCloseBtn');
+        const editorPlayBtn = document.getElementById('editorPlayBtn');
+        const editorPauseBtn = document.getElementById('editorPauseBtn');
+        const editorResetBtn = document.getElementById('editorResetBtn');
+        const editorFrameRate = document.getElementById('editorFrameRate');
+        const editorStartFrame = document.getElementById('editorStartFrame');
+        const editorEndFrame = document.getElementById('editorEndFrame');
+        const editorLoop = document.getElementById('editorLoop');
+        const timelineRuler = document.getElementById('timelineRuler');
+        const rulerMarks = document.getElementById('rulerMarks');
+        const playhead = document.getElementById('playhead');
+        const timelineTracks = document.getElementById('timelineTracks');
+        const brightnessTrack = document.getElementById('brightnessTrack');
+        const rotationTrack = document.getElementById('rotationTrack');
+        const tiltTrack = document.getElementById('tiltTrack');
+        const sidebarContent = document.getElementById('sidebarContent');
+        const addKeyframeBtn = document.getElementById('addKeyframeBtn');
+        const deleteKeyframeBtn = document.getElementById('deleteKeyframeBtn');
+        const exportJsonBtn = document.getElementById('exportJsonBtn');
+        const loadToViewerBtn = document.getElementById('loadToViewerBtn');
+        const zoomLevel = document.getElementById('zoomLevel');
+        const playheadHandle = document.getElementById('playheadHandle');
+        const playheadFrameDisplay = document.getElementById('playheadFrameDisplay');
+        const trackBrightness = document.getElementById('trackBrightness');
+        const trackRotation = document.getElementById('trackRotation');
+        const trackTilt = document.getElementById('trackTilt');
+        const keyframeEditorSection = document.getElementById('keyframeEditorSection');
+        const noKeyframeSelected = document.getElementById('noKeyframeSelected');
+        const curvePreview = document.getElementById('curvePreview');
+        const curveTitle = document.getElementById('curveTitle');
+        const curvePath = document.getElementById('curvePath');
+        const handle1 = document.getElementById('handle1');
+        const handle2 = document.getElementById('handle2');
 
         // Sample animation data
         const sampleAnimation = {
@@ -1435,6 +2236,64 @@
                 if (e.target === schemaModal) hideSchema();
             });
 
+            // Animation Editor - iframe overlay
+            editorBtn.addEventListener('click', showEditorOverlay);
+
+            // Iframe editor close button
+            const editorIframeCloseBtn = document.getElementById('editorIframeCloseBtn');
+            editorIframeCloseBtn.addEventListener('click', hideEditorOverlay);
+
+            // Close iframe modal when clicking outside
+            const editorIframeModal = document.getElementById('editorIframeModal');
+            editorIframeModal.addEventListener('click', (e) => {
+                if (e.target === editorIframeModal) hideEditorOverlay();
+            });
+            editorCloseBtn.addEventListener('click', hideEditor);
+            editorPlayBtn.addEventListener('click', playEditorAnimation);
+            editorPauseBtn.addEventListener('click', pauseEditorAnimation);
+            editorResetBtn.addEventListener('click', resetEditorAnimation);
+            addKeyframeBtn.addEventListener('click', addKeyframe);
+            deleteKeyframeBtn.addEventListener('click', deleteSelectedKeyframe);
+            exportJsonBtn.addEventListener('click', exportAnimationJson);
+            loadToViewerBtn.addEventListener('click', loadEditorAnimationToViewer);
+            editorModal.addEventListener('click', (e) => {
+                if (e.target === editorModal) hideEditor();
+            });
+
+            // Timeline configuration listeners
+            editorFrameRate.addEventListener('change', updateTimelineConfig);
+            editorStartFrame.addEventListener('change', updateTimelineConfig);
+            editorEndFrame.addEventListener('change', updateTimelineConfig);
+
+            // Timeline interaction listeners
+            brightnessTrack.addEventListener('click', (e) => handleTrackClick(e, 'brightness'));
+            rotationTrack.addEventListener('click', (e) => handleTrackClick(e, 'rotation'));
+            tiltTrack.addEventListener('click', (e) => handleTrackClick(e, 'tilt'));
+
+            // Timeline ruler click for scrubbing
+            timelineRuler.addEventListener('click', handleRulerClick);
+
+            // Sync scrolling between ruler and tracks
+            timelineRuler.addEventListener('scroll', () => {
+                timelineTracks.scrollLeft = timelineRuler.scrollLeft;
+            });
+            timelineTracks.addEventListener('scroll', () => {
+                timelineRuler.scrollLeft = timelineTracks.scrollLeft;
+            });
+
+            // Playhead dragging
+            playheadHandle.addEventListener('mousedown', startDragPlayhead);
+            playhead.addEventListener('mousedown', startDragPlayhead);
+            document.addEventListener('mousemove', dragPlayhead);
+            document.addEventListener('mouseup', stopDragPlayhead);
+
+            // Keyboard shortcuts for editor
+            document.addEventListener('keydown', handleEditorKeydown);
+
+            // Hide curve preview when mouse leaves editor
+            editorModal.addEventListener('mouseleave', hideCurvePreview);
+
+
             // Drag and drop
             document.addEventListener('dragenter', handleDragEnter);
             document.addEventListener('dragover', handleDragOver);
@@ -1717,6 +2576,802 @@
         // Make toggleSection available globally
         window.toggleSection = toggleSection;
 
+        // Animation Editor Iframe Functions
+        function showEditorOverlay() {
+            const editorIframeModal = document.getElementById('editorIframeModal');
+            const editorIframe = document.getElementById('editorIframe');
+
+            // Set the iframe source to the animation editor
+            editorIframe.src = 'animation-editor.html';
+
+            // Show the modal with animation
+            editorIframeModal.classList.add('show');
+
+            // Set up message listener for communication from iframe
+            window.addEventListener('message', handleEditorMessage);
+        }
+
+        function hideEditorOverlay() {
+            const editorIframeModal = document.getElementById('editorIframeModal');
+            const editorIframe = document.getElementById('editorIframe');
+
+            // Hide the modal
+            editorIframeModal.classList.remove('show');
+
+            // Clear iframe source after animation completes
+            setTimeout(() => {
+                if (!editorIframeModal.classList.contains('show')) {
+                    editorIframe.src = '';
+                }
+            }, 300);
+
+            // Remove message listener
+            window.removeEventListener('message', handleEditorMessage);
+        }
+
+        function handleEditorMessage(event) {
+            // Handle messages from the iframe editor
+            if (event.data && event.data.type === 'loadAnimation') {
+                // Load animation data into the main viewer
+                if (event.data.animation) {
+                    loadAnimationData(event.data.animation);
+                    hideEditorOverlay();
+                }
+            } else if (event.data && event.data.type === 'closeEditor') {
+                // Close the iframe editor
+                hideEditorOverlay();
+            }
+        }
+
+        function loadAnimationData(jsonData) {
+            try {
+                status.textContent = '⏳ Loading animation from editor...';
+                status.className = 'status loading';
+
+                animationData = jsonData;
+                currentFrame = animationData.startFrame;
+
+                // Update frame slider range and position
+                frameSlider.min = animationData.startFrame;
+                frameSlider.max = animationData.endFrame;
+                frameSlider.value = currentFrame;
+
+                applyFrame(currentFrame);
+                status.textContent = `✅ Animation loaded from editor (${animationData.endFrame - animationData.startFrame + 1} frames)`;
+                status.className = 'status success';
+            } catch (error) {
+                console.error('Error loading animation data:', error);
+                status.textContent = '❌ Error loading animation from editor';
+                status.className = 'status error';
+            }
+        }
+
+        // Animation Editor Functions
+        function showEditor() {
+            editorModal.classList.add('show');
+            editorCurrentFrame = parseInt(editorStartFrame.value);
+            initializeTimeline();
+            loadDefaultKeyframes();
+
+            // Initialize sidebar state
+            selectedKeyframe = null;
+            updateSidebar();
+
+            status.textContent = '🎬 Animation Editor opened';
+            status.className = 'status success';
+        }
+
+        function hideEditor() {
+            editorModal.classList.remove('show');
+            pauseEditorAnimation();
+        }
+
+        function initializeTimeline() {
+            updateTimelineConfig();
+            renderTimeline();
+            updatePlayhead();
+        }
+
+                function updateTimelineConfig() {
+            const startFrame = parseInt(editorStartFrame.value);
+            const endFrame = parseInt(editorEndFrame.value);
+            const totalFrames = endFrame - startFrame + 1;
+
+            // Adaptive pixels per frame based on animation length
+            if (totalFrames <= 200) {
+                pixelsPerFrame = 5;
+            } else if (totalFrames <= 500) {
+                pixelsPerFrame = 3;
+            } else if (totalFrames <= 1000) {
+                pixelsPerFrame = 2;
+            } else {
+                pixelsPerFrame = 1;
+            }
+
+                        timelineWidth = Math.max(totalFrames * pixelsPerFrame, 1000);
+
+            // Update zoom level display
+            if (zoomLevel) {
+                zoomLevel.textContent = `${pixelsPerFrame}px/frame`;
+                if (totalFrames > 200) {
+                    zoomLevel.title = `Auto-scaled for ${totalFrames} frames`;
+                } else {
+                    zoomLevel.title = '';
+                }
+            }
+
+            renderTimeline();
+        }
+
+                function renderTimeline() {
+            const startFrame = parseInt(editorStartFrame.value);
+            const endFrame = parseInt(editorEndFrame.value);
+            const trackLabelWidth = 120; // Width of the track labels
+
+            // Update ruler
+            rulerMarks.style.width = (timelineWidth + trackLabelWidth) + 'px';
+            rulerMarks.innerHTML = '';
+
+                        // Adaptive frame mark interval based on animation length
+            const totalFrames = endFrame - startFrame + 1;
+            let markInterval;
+            if (totalFrames <= 200) {
+                markInterval = 10;
+            } else if (totalFrames <= 500) {
+                markInterval = 25;
+            } else if (totalFrames <= 1000) {
+                markInterval = 50;
+            } else {
+                markInterval = 100;
+            }
+
+            for (let frame = startFrame; frame <= endFrame; frame += markInterval) {
+                const mark = document.createElement('div');
+                mark.className = 'frame-mark';
+                mark.style.left = (trackLabelWidth + (frame - startFrame) * pixelsPerFrame) + 'px';
+
+                const number = document.createElement('span');
+                number.className = 'frame-number';
+                number.textContent = frame;
+                mark.appendChild(number);
+
+                rulerMarks.appendChild(mark);
+            }
+
+            // Update track widths
+            [brightnessTrack, rotationTrack, tiltTrack].forEach(track => {
+                track.style.width = timelineWidth + 'px';
+            });
+
+            renderKeyframes();
+        }
+
+        function renderKeyframes() {
+            // Clear existing keyframes
+            document.querySelectorAll('.keyframe').forEach(kf => kf.remove());
+
+            const startFrame = parseInt(editorStartFrame.value);
+
+            // Render keyframes for each property
+            Object.keys(editorKeyframes).forEach(property => {
+                const track = document.getElementById(property + 'Track');
+                editorKeyframes[property].forEach((keyframe, index) => {
+                    const keyframeEl = document.createElement('div');
+                    keyframeEl.className = 'keyframe';
+                    keyframeEl.style.left = ((keyframe.frame - startFrame) * pixelsPerFrame) + 'px';
+                    keyframeEl.dataset.property = property;
+                    keyframeEl.dataset.index = index;
+
+                    keyframeEl.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        selectKeyframe(property, index);
+                    });
+
+                    track.appendChild(keyframeEl);
+                });
+            });
+        }
+
+                function handleTrackClick(event, property) {
+            if (event.target.classList.contains('keyframe')) return;
+
+            const rect = event.target.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const startFrame = parseInt(editorStartFrame.value);
+            const frame = Math.round(startFrame + (x / pixelsPerFrame));
+
+            addKeyframeAtFrame(property, frame);
+        }
+
+        function handleRulerClick(event) {
+            if (event.target.classList.contains('playhead-handle')) return;
+
+            const rect = timelineRuler.getBoundingClientRect();
+            const x = event.clientX - rect.left - 120; // Account for track label width
+            const startFrame = parseInt(editorStartFrame.value);
+            const endFrame = parseInt(editorEndFrame.value);
+            const frame = Math.max(startFrame, Math.min(endFrame, Math.round(startFrame + (x / pixelsPerFrame))));
+
+            editorCurrentFrame = frame;
+            updatePlayhead();
+        }
+
+        function addKeyframeAtFrame(property, frame) {
+            const defaultValues = {
+                brightness: 50,
+                rotation: 180,
+                tilt: 0
+            };
+
+            const keyframe = {
+                frame: frame,
+                value: defaultValues[property],
+                easing: [0.42, 0.0, 0.58, 1.0] // ease
+            };
+
+            // Insert keyframe in correct position
+            const keyframes = editorKeyframes[property];
+            let insertIndex = keyframes.findIndex(kf => kf.frame > frame);
+            if (insertIndex === -1) insertIndex = keyframes.length;
+
+            keyframes.splice(insertIndex, 0, keyframe);
+
+            renderKeyframes();
+            selectKeyframe(property, insertIndex);
+            updateCurrentFrameValues();
+        }
+
+        function addKeyframe() {
+            if (!selectedKeyframe) {
+                // Add keyframe at current frame for brightness by default
+                addKeyframeAtFrame('brightness', editorCurrentFrame);
+            } else {
+                // Add keyframe for selected property
+                addKeyframeAtFrame(selectedKeyframe.property, editorCurrentFrame);
+            }
+        }
+
+        function deleteSelectedKeyframe() {
+            if (!selectedKeyframe) return;
+
+            const keyframes = editorKeyframes[selectedKeyframe.property];
+            keyframes.splice(selectedKeyframe.index, 1);
+
+            selectedKeyframe = null;
+            renderKeyframes();
+            updateSidebar();
+            updateCurrentFrameValues();
+        }
+
+        function selectKeyframe(property, index) {
+            // Clear previous selection
+            document.querySelectorAll('.keyframe.selected').forEach(kf => {
+                kf.classList.remove('selected');
+            });
+
+            // Select new keyframe
+            const keyframeEl = document.querySelector(`[data-property="${property}"][data-index="${index}"]`);
+            if (keyframeEl) {
+                keyframeEl.classList.add('selected');
+                selectedKeyframe = { property, index };
+                updateSidebar();
+            }
+        }
+
+                function updateSidebar() {
+            if (!selectedKeyframe) {
+                keyframeEditorSection.style.display = 'none';
+                noKeyframeSelected.style.display = 'block';
+                return;
+            }
+
+            noKeyframeSelected.style.display = 'none';
+            keyframeEditorSection.style.display = 'block';
+
+            const keyframe = editorKeyframes[selectedKeyframe.property][selectedKeyframe.index];
+            const propertyInfo = {
+                brightness: { name: 'Brightness', min: 0, max: 100, unit: '%' },
+                rotation: { name: 'Rotation', min: 0, max: 359, unit: '°' },
+                tilt: { name: 'Tilt', min: -30, max: 90, unit: '°' }
+            };
+
+            const info = propertyInfo[selectedKeyframe.property];
+
+            keyframeEditorSection.innerHTML = `
+                <div class="keyframe-editor">
+                    <h4>${info.name} Keyframe</h4>
+                    <div class="editor-field">
+                        <label>Frame</label>
+                        <input type="number" id="keyframeFrame" value="${keyframe.frame}" min="0">
+                    </div>
+                    <div class="editor-field">
+                        <label>Value (${info.unit})</label>
+                        <input type="number" id="keyframeValue" value="${keyframe.value}" min="${info.min}" max="${info.max}" step="0.1">
+                    </div>
+                    <div class="editor-field">
+                        <label>Easing</label>
+                        <div class="easing-presets">
+                            <div class="easing-preset" data-easing="0.42,0.0,0.58,1.0">Ease</div>
+                            <div class="easing-preset" data-easing="0.42,0.0,1.0,1.0">Ease Out</div>
+                            <div class="easing-preset" data-easing="0.0,0.0,0.58,1.0">Ease In</div>
+                            <div class="easing-preset" data-easing="0.25,0.1,0.25,1.0">Ease In-Out</div>
+                        </div>
+                        <input type="text" id="keyframeEasing" value="${keyframe.easing.join(',')}" placeholder="p1x,p1y,p2x,p2y">
+                    </div>
+                </div>
+            `;
+
+                        // Add event listeners
+            document.getElementById('keyframeFrame').addEventListener('change', updateKeyframeProperty);
+            document.getElementById('keyframeValue').addEventListener('change', updateKeyframeProperty);
+            document.getElementById('keyframeEasing').addEventListener('change', updateKeyframeProperty);
+
+            // Easing preset listeners - need to use setTimeout to ensure DOM is ready
+            setTimeout(() => {
+                const presets = keyframeEditorSection.querySelectorAll('.easing-preset');
+                console.log('Found easing presets:', presets.length); // Debug log
+
+                presets.forEach(preset => {
+                    preset.addEventListener('click', () => {
+                        document.getElementById('keyframeEasing').value = preset.dataset.easing;
+                        updateKeyframeProperty();
+                    });
+
+                    // Add curve preview on hover
+                    preset.addEventListener('mouseenter', (e) => {
+                        console.log('Hover detected on:', preset.textContent); // Debug log
+                        const easingValues = preset.dataset.easing.split(',').map(v => parseFloat(v));
+                        const presetName = preset.textContent;
+                        showCurvePreview(e, easingValues, presetName);
+                    });
+
+                    preset.addEventListener('mouseleave', hideCurvePreview);
+                });
+            }, 10);
+
+
+            // Highlight current easing
+            const currentEasing = keyframe.easing.join(',');
+            document.querySelectorAll('.easing-preset').forEach(preset => {
+                if (preset.dataset.easing === currentEasing) {
+                    preset.classList.add('active');
+                }
+            });
+
+            // Add curve preview to custom input
+            addCustomEasingPreview();
+        }
+
+        function updateKeyframeProperty() {
+            if (!selectedKeyframe) return;
+
+            const keyframe = editorKeyframes[selectedKeyframe.property][selectedKeyframe.index];
+            const frameInput = document.getElementById('keyframeFrame');
+            const valueInput = document.getElementById('keyframeValue');
+            const easingInput = document.getElementById('keyframeEasing');
+
+            if (frameInput) keyframe.frame = parseInt(frameInput.value);
+            if (valueInput) keyframe.value = parseFloat(valueInput.value);
+            if (easingInput) {
+                const easingValues = easingInput.value.split(',').map(v => parseFloat(v.trim()));
+                if (easingValues.length === 4 && easingValues.every(v => !isNaN(v))) {
+                    keyframe.easing = easingValues;
+                }
+            }
+
+            // Re-sort keyframes by frame
+            editorKeyframes[selectedKeyframe.property].sort((a, b) => a.frame - b.frame);
+
+            renderKeyframes();
+
+            // Find and reselect the keyframe after sorting
+            const newIndex = editorKeyframes[selectedKeyframe.property].findIndex(kf => kf === keyframe);
+            selectKeyframe(selectedKeyframe.property, newIndex);
+            updateCurrentFrameValues();
+        }
+
+                        // Curve Preview Functions
+        function showCurvePreview(event, bezierValues, title) {
+            console.log('showCurvePreview called:', title, bezierValues); // Debug log
+
+            if (bezierValues.length !== 4) {
+                console.log('Invalid bezier values length:', bezierValues.length);
+                return;
+            }
+
+            curveTitle.textContent = title;
+            updateCurveDisplay(bezierValues);
+
+                                    // Smart positioning - left side preferred, with fallbacks
+            const rect = event.target.getBoundingClientRect();
+            const previewWidth = 144; // Approximate width of preview (120px + padding)
+            const previewHeight = 120; // Approximate height
+            const gap = 10;
+
+            let left, top;
+
+            // Try left side first
+            if (rect.left - previewWidth - gap >= 0) {
+                left = rect.left - previewWidth - gap;
+            }
+            // If not enough space on left, try right side
+            else if (rect.right + previewWidth + gap <= window.innerWidth) {
+                left = rect.right + gap;
+            }
+            // If neither side works, center it and position above/below
+            else {
+                left = Math.max(gap, Math.min(window.innerWidth - previewWidth - gap, rect.left - previewWidth/2));
+            }
+
+            // Vertical positioning
+            if (rect.top - previewHeight - gap >= 0) {
+                top = rect.top - previewHeight - gap; // Above
+            } else {
+                top = rect.bottom + gap; // Below
+            }
+
+            // Ensure it doesn't go off-screen
+            top = Math.max(gap, Math.min(window.innerHeight - previewHeight - gap, top));
+
+            console.log('Smart positioning preview at:', left, top); // Debug log
+
+            curvePreview.style.display = 'block';
+            curvePreview.style.left = left + 'px';
+            curvePreview.style.top = top + 'px';
+            curvePreview.style.position = 'fixed';
+
+            // Force a reflow then add show class
+            curvePreview.offsetHeight;
+            curvePreview.classList.add('show');
+            console.log('Preview should be visible now'); // Debug log
+        }
+
+        function hideCurvePreview() {
+            console.log('Hiding curve preview'); // Debug log
+            curvePreview.classList.remove('show');
+
+            // Hide after transition completes
+            setTimeout(() => {
+                if (!curvePreview.classList.contains('show')) {
+                    curvePreview.style.display = 'none';
+                }
+            }, 200);
+        }
+
+        function updateCurveDisplay(bezierValues) {
+            const [p1x, p1y, p2x, p2y] = bezierValues;
+
+            // Convert bezier values (0-1) to SVG coordinates
+            // SVG: 10,70 (bottom-left) to 90,10 (top-right)
+            const x1 = 10 + (p1x * 80);
+            const y1 = 70 - (p1y * 60);
+            const x2 = 10 + (p2x * 80);
+            const y2 = 70 - (p2y * 60);
+
+            // Update control point positions
+            handle1.setAttribute('cx', x1);
+            handle1.setAttribute('cy', y1);
+            handle2.setAttribute('cx', x2);
+            handle2.setAttribute('cy', y2);
+
+            // Generate cubic bezier curve path
+            const pathData = `M 10,70 C ${x1},${y1} ${x2},${y2} 90,10`;
+            curvePath.setAttribute('d', pathData);
+        }
+
+        // Add hover preview to custom easing input
+        function addCustomEasingPreview() {
+            const easingInput = document.getElementById('keyframeEasing');
+            if (!easingInput) return;
+
+            let previewTimeout;
+
+            easingInput.addEventListener('mouseenter', (e) => {
+                clearTimeout(previewTimeout);
+                previewTimeout = setTimeout(() => {
+                    const value = easingInput.value;
+                    const easingValues = value.split(',').map(v => parseFloat(v.trim()));
+                    if (easingValues.length === 4 && easingValues.every(v => !isNaN(v))) {
+                        showCurvePreview(e, easingValues, 'Custom');
+                    }
+                }, 500); // Delay to avoid showing on quick mouse pass
+            });
+
+            easingInput.addEventListener('mouseleave', () => {
+                clearTimeout(previewTimeout);
+                hideCurvePreview();
+            });
+        }
+
+        function loadDefaultKeyframes() {
+            // Load some default keyframes to get started
+            editorKeyframes = {
+                brightness: [
+                    { frame: 0, value: 0, easing: [0.42, 0.0, 0.58, 1.0] },
+                    { frame: 100, value: 100, easing: [0.42, 0.0, 1.0, 1.0] },
+                    { frame: 200, value: 0, easing: [0.42, 0.0, 1.0, 1.0] }
+                ],
+                rotation: [
+                    { frame: 0, value: 180, easing: [0.42, 0.0, 0.58, 1.0] },
+                    { frame: 70, value: 0, easing: [0.42, 0.0, 1.0, 1.0] },
+                    { frame: 150, value: 359, easing: [0.42, 0.0, 1.0, 1.0] },
+                    { frame: 200, value: 180, easing: [0.42, 0.0, 1.0, 1.0] }
+                ],
+                tilt: []
+            };
+            renderKeyframes();
+            updateCurrentFrameValues();
+        }
+
+        function playEditorAnimation() {
+            editorIsPlaying = true;
+            editorStartTime = Date.now() - (editorCurrentFrame / parseInt(editorFrameRate.value) * 1000);
+
+            if (!editorAnimationId) {
+                animateEditor();
+            }
+        }
+
+        function pauseEditorAnimation() {
+            editorIsPlaying = false;
+            if (editorAnimationId) {
+                cancelAnimationFrame(editorAnimationId);
+                editorAnimationId = null;
+            }
+        }
+
+        function resetEditorAnimation() {
+            pauseEditorAnimation();
+            editorCurrentFrame = parseInt(editorStartFrame.value);
+            updatePlayhead();
+        }
+
+        function animateEditor() {
+            if (editorIsPlaying) {
+                const elapsed = Date.now() - editorStartTime;
+                const frameRate = parseInt(editorFrameRate.value);
+                const startFrame = parseInt(editorStartFrame.value);
+                const endFrame = parseInt(editorEndFrame.value);
+
+                editorCurrentFrame = startFrame + Math.floor(elapsed / (1000 / frameRate));
+
+                if (editorCurrentFrame > endFrame) {
+                    if (editorLoop.checked) {
+                        editorCurrentFrame = startFrame;
+                        editorStartTime = Date.now();
+                    } else {
+                        editorCurrentFrame = endFrame;
+                        pauseEditorAnimation();
+                    }
+                }
+
+                updatePlayhead();
+                editorAnimationId = requestAnimationFrame(animateEditor);
+            }
+        }
+
+        function updatePlayhead() {
+            const startFrame = parseInt(editorStartFrame.value);
+            const trackLabelWidth = 120; // Width of track labels
+            const left = trackLabelWidth + (editorCurrentFrame - startFrame) * pixelsPerFrame;
+            playhead.style.left = left + 'px';
+
+            // Update frame display
+            playheadFrameDisplay.textContent = `Frame ${editorCurrentFrame}`;
+
+            // Update current property values
+            updateCurrentFrameValues();
+        }
+
+                function updateCurrentFrameValues() {
+            const brightness = interpolatePropertyValue('brightness', editorCurrentFrame);
+            const rotation = interpolatePropertyValue('rotation', editorCurrentFrame);
+            const tilt = interpolatePropertyValue('tilt', editorCurrentFrame);
+
+            trackBrightness.textContent = `${Math.round(brightness)}%`;
+            trackRotation.textContent = `${Math.round(rotation)}°`;
+            trackTilt.textContent = `${Math.round(tilt)}°`;
+        }
+
+        function interpolatePropertyValue(property, frame) {
+            const keyframes = editorKeyframes[property];
+
+            if (keyframes.length === 0) {
+                // Return default values if no keyframes
+                const defaults = { brightness: 50, rotation: 180, tilt: 0 };
+                return defaults[property];
+            }
+
+            // Find the keyframes that surround this frame
+            let beforeKeyframe = null;
+            let afterKeyframe = null;
+
+            for (let i = 0; i < keyframes.length; i++) {
+                if (keyframes[i].frame <= frame) {
+                    beforeKeyframe = keyframes[i];
+                }
+                if (keyframes[i].frame >= frame && afterKeyframe === null) {
+                    afterKeyframe = keyframes[i];
+                }
+            }
+
+            // If frame is before all keyframes
+            if (beforeKeyframe === null) {
+                return keyframes[0].value;
+            }
+
+            // If frame is after all keyframes
+            if (afterKeyframe === null) {
+                return beforeKeyframe.value;
+            }
+
+            // If frame exactly matches a keyframe
+            if (beforeKeyframe.frame === frame) {
+                return beforeKeyframe.value;
+            }
+
+            // Interpolate between keyframes
+            const totalFrames = afterKeyframe.frame - beforeKeyframe.frame;
+            const currentProgress = frame - beforeKeyframe.frame;
+            let t = currentProgress / totalFrames;
+
+            // Apply easing curve
+            if (beforeKeyframe.easing && beforeKeyframe.easing.length === 4) {
+                t = cubicBezier(t, beforeKeyframe.easing[0], beforeKeyframe.easing[1],
+                                   beforeKeyframe.easing[2], beforeKeyframe.easing[3]);
+            }
+
+            // Linear interpolation with easing
+            return beforeKeyframe.value + (afterKeyframe.value - beforeKeyframe.value) * t;
+        }
+
+        function startDragPlayhead(event) {
+            event.preventDefault();
+            isDraggingPlayhead = true;
+            dragStartX = event.clientX;
+            dragStartFrame = editorCurrentFrame;
+
+            // Pause animation while dragging
+            const wasPlaying = editorIsPlaying;
+            pauseEditorAnimation();
+            playheadHandle.dataset.wasPlaying = wasPlaying;
+        }
+
+        function dragPlayhead(event) {
+            if (!isDraggingPlayhead) return;
+
+            event.preventDefault();
+            const deltaX = event.clientX - dragStartX;
+            const deltaFrames = Math.round(deltaX / pixelsPerFrame);
+            const newFrame = Math.max(
+                parseInt(editorStartFrame.value),
+                Math.min(
+                    parseInt(editorEndFrame.value),
+                    dragStartFrame + deltaFrames
+                )
+            );
+
+            editorCurrentFrame = newFrame;
+            updatePlayhead();
+        }
+
+        function stopDragPlayhead(event) {
+            if (!isDraggingPlayhead) return;
+
+            isDraggingPlayhead = false;
+
+            // Resume animation if it was playing before drag
+            if (playheadHandle.dataset.wasPlaying === 'true') {
+                playEditorAnimation();
+            }
+        }
+
+        function exportAnimationJson() {
+            const animationConfig = {
+                frameRate: parseInt(editorFrameRate.value),
+                startFrame: parseInt(editorStartFrame.value),
+                endFrame: parseInt(editorEndFrame.value),
+                loop: editorLoop.checked
+            };
+
+            // Convert editor keyframes to JSON format
+            Object.keys(editorKeyframes).forEach(property => {
+                if (editorKeyframes[property].length > 0) {
+                    const keyframes = editorKeyframes[property];
+                    const jsonKeyframes = [];
+
+                    for (let i = 0; i < keyframes.length - 1; i++) {
+                        const current = keyframes[i];
+                        const next = keyframes[i + 1];
+
+                        jsonKeyframes.push({
+                            from_frame: current.frame,
+                            to_frame: next.frame,
+                            from_value: current.value,
+                            to_value: next.value,
+                            bezier: current.easing
+                        });
+                    }
+
+                    animationConfig[property] = {
+                        animation: true,
+                        keyframe: jsonKeyframes
+                    };
+                }
+            });
+
+            const jsonString = JSON.stringify(animationConfig, null, 2);
+
+            // Download the JSON file
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+
+            const downloadLink = document.createElement('a');
+            downloadLink.href = url;
+            downloadLink.download = 'custom_animation.json';
+            downloadLink.style.display = 'none';
+
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+
+            URL.revokeObjectURL(url);
+
+            status.textContent = '✅ Animation JSON exported';
+            status.className = 'status success';
+        }
+
+        function loadEditorAnimationToViewer() {
+            const animationConfig = {
+                frameRate: parseInt(editorFrameRate.value),
+                startFrame: parseInt(editorStartFrame.value),
+                endFrame: parseInt(editorEndFrame.value),
+                loop: editorLoop.checked
+            };
+
+            // Convert editor keyframes to JSON format
+            Object.keys(editorKeyframes).forEach(property => {
+                if (editorKeyframes[property].length > 0) {
+                    const keyframes = editorKeyframes[property];
+                    const jsonKeyframes = [];
+
+                    for (let i = 0; i < keyframes.length - 1; i++) {
+                        const current = keyframes[i];
+                        const next = keyframes[i + 1];
+
+                        jsonKeyframes.push({
+                            from_frame: current.frame,
+                            to_frame: next.frame,
+                            from_value: current.value,
+                            to_value: next.value,
+                            bezier: current.easing
+                        });
+                    }
+
+                    animationConfig[property] = {
+                        animation: true,
+                        keyframe: jsonKeyframes
+                    };
+                }
+            });
+
+            // Load into main viewer
+            animationData = animationConfig;
+            currentFrame = animationData.startFrame;
+
+            // Update frame slider range and position
+            frameSlider.min = animationData.startFrame;
+            frameSlider.max = animationData.endFrame;
+            frameSlider.value = currentFrame;
+
+            applyFrame(currentFrame);
+
+            // Close editor and show success
+            hideEditor();
+            status.textContent = '✅ Animation loaded to viewer';
+            status.className = 'status success';
+        }
+
         function hideSchema() {
             schemaModal.classList.remove('show');
         }
@@ -1865,8 +3520,125 @@
                     hideDropOverlay();
                 } else if (schemaModal.classList.contains('show')) {
                     hideSchema();
+                } else if (editorModal.classList.contains('show')) {
+                    hideEditor();
                 }
             }
+        }
+
+        function handleEditorKeydown(event) {
+            // Only handle shortcuts when editor is open
+            if (!editorModal.classList.contains('show')) return;
+
+            // Don't interfere when user is typing in input fields
+            if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') return;
+
+            switch (event.key) {
+                case ' ': // Spacebar
+                    event.preventDefault(); // Prevent page scroll
+                    toggleEditorPlayback();
+                    break;
+                case 'Home':
+                    event.preventDefault();
+                    jumpToStart();
+                    break;
+                case 'End':
+                    event.preventDefault();
+                    jumpToEnd();
+                    break;
+                case 'ArrowLeft':
+                    if (event.shiftKey) {
+                        event.preventDefault();
+                        jumpToPreviousKeyframe();
+                    } else {
+                        event.preventDefault();
+                        stepFrame(-1);
+                    }
+                    break;
+                case 'ArrowRight':
+                    if (event.shiftKey) {
+                        event.preventDefault();
+                        jumpToNextKeyframe();
+                    } else {
+                        event.preventDefault();
+                        stepFrame(1);
+                    }
+                    break;
+            }
+        }
+
+        function toggleEditorPlayback() {
+            if (editorIsPlaying) {
+                pauseEditorAnimation();
+            } else {
+                playEditorAnimation();
+            }
+        }
+
+        function jumpToStart() {
+            pauseEditorAnimation();
+            editorCurrentFrame = parseInt(editorStartFrame.value);
+            updatePlayhead();
+        }
+
+        function jumpToEnd() {
+            pauseEditorAnimation();
+            editorCurrentFrame = parseInt(editorEndFrame.value);
+            updatePlayhead();
+        }
+
+        function stepFrame(direction) {
+            pauseEditorAnimation();
+            const startFrame = parseInt(editorStartFrame.value);
+            const endFrame = parseInt(editorEndFrame.value);
+            editorCurrentFrame = Math.max(startFrame, Math.min(endFrame, editorCurrentFrame + direction));
+            updatePlayhead();
+        }
+
+        function jumpToPreviousKeyframe() {
+            pauseEditorAnimation();
+
+            // Collect all keyframes and sort by frame
+            const allKeyframes = [];
+            Object.keys(editorKeyframes).forEach(property => {
+                editorKeyframes[property].forEach(kf => {
+                    allKeyframes.push(kf.frame);
+                });
+            });
+
+            const uniqueFrames = [...new Set(allKeyframes)].sort((a, b) => a - b);
+            const currentIndex = uniqueFrames.findIndex(frame => frame >= editorCurrentFrame);
+
+            if (currentIndex > 0) {
+                editorCurrentFrame = uniqueFrames[currentIndex - 1];
+            } else if (uniqueFrames.length > 0) {
+                editorCurrentFrame = uniqueFrames[uniqueFrames.length - 1]; // Wrap to last
+            }
+
+            updatePlayhead();
+        }
+
+        function jumpToNextKeyframe() {
+            pauseEditorAnimation();
+
+            // Collect all keyframes and sort by frame
+            const allKeyframes = [];
+            Object.keys(editorKeyframes).forEach(property => {
+                editorKeyframes[property].forEach(kf => {
+                    allKeyframes.push(kf.frame);
+                });
+            });
+
+            const uniqueFrames = [...new Set(allKeyframes)].sort((a, b) => a - b);
+            const nextFrame = uniqueFrames.find(frame => frame > editorCurrentFrame);
+
+            if (nextFrame !== undefined) {
+                editorCurrentFrame = nextFrame;
+            } else if (uniqueFrames.length > 0) {
+                editorCurrentFrame = uniqueFrames[0]; // Wrap to first
+            }
+
+            updatePlayhead();
         }
 
         function updateRotation(value) {
