@@ -2620,6 +2620,24 @@
             } else if (event.data && event.data.type === 'closeEditor') {
                 // Close the iframe editor
                 hideEditorOverlay();
+            } else if (event.data && event.data.type === 'livePropertyUpdate') {
+                // Update 3D model properties in real-time during editor playback
+                if (event.data.properties && lampRobot) {
+                    updateLampProperties(event.data.properties);
+                }
+            }
+        }
+
+        function updateLampProperties(properties) {
+            // Update lamp robot properties in real-time from editor
+            if (properties.brightness !== undefined) {
+                updateBrightness(properties.brightness);
+            }
+            if (properties.rotation !== undefined) {
+                updateRotation(properties.rotation);
+            }
+            if (properties.tilt !== undefined) {
+                updateTilt(properties.tilt);
             }
         }
 

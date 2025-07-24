@@ -1487,6 +1487,18 @@
             trackBrightness.textContent = `${Math.round(brightness)}%`;
             trackRotation.textContent = `${Math.round(rotation)}°`;
             trackTilt.textContent = `${Math.round(tilt)}°`;
+
+            // Send live property updates to main viewer during playback
+            if (window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'livePropertyUpdate',
+                    properties: {
+                        brightness: brightness,
+                        rotation: rotation,
+                        tilt: tilt
+                    }
+                }, '*');
+            }
         }
 
         function interpolatePropertyValue(property, frame) {
