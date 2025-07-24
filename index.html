@@ -2589,6 +2589,20 @@
 
             // Set up message listener for communication from iframe
             window.addEventListener('message', handleEditorMessage);
+
+            // Send current animation data to editor after it loads
+            editorIframe.addEventListener('load', function() {
+                // Wait a moment for iframe to be ready
+                setTimeout(() => {
+                    if (animationData) {
+                        // Send current animation data to the editor
+                        editorIframe.contentWindow.postMessage({
+                            type: 'loadCurrentAnimation',
+                            animation: animationData
+                        }, '*');
+                    }
+                }, 50);
+            }, { once: true });
         }
 
         function hideEditorOverlay() {

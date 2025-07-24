@@ -781,6 +781,7 @@
         let editorIsPlaying = false;
         let editorStartTime = 0;
         let editorAnimationId = null;
+        let hasLoadedFromParent = false;
         let timelineWidth = 1000;
         let pixelsPerFrame = 5;
         let isDraggingPlayhead = false;
@@ -926,11 +927,32 @@
                 if (loadBtn) {
                     loadBtn.textContent = '▶ Send to Viewer';
                 }
+
+                // Listen for animation data from parent
+                window.addEventListener('message', function(event) {
+                    if (event.data && event.data.type === 'loadCurrentAnimation') {
+                        if (event.data.animation) {
+                            loadAnimationFromParent(event.data.animation);
+                        }
+                    }
+                });
             }
 
             editorCurrentFrame = parseInt(editorStartFrame.value);
             initializeTimeline();
-            loadDefaultKeyframes();
+
+            // In iframe mode, wait briefly for parent to send data before loading defaults
+            if (window.parent !== window) {
+                setTimeout(() => {
+                    if (!hasLoadedFromParent) {
+                        loadDefaultKeyframes();
+                    }
+                }, 100);
+            } else {
+                // Standalone mode - load defaults immediately
+                loadDefaultKeyframes();
+            }
+
             setupEventListeners();
 
             // Auto-focus the editor for keyboard shortcuts
@@ -1415,6 +1437,92 @@
                 ],
                 tilt: []
             };
+            renderKeyframes();
+            updateCurrentFrameValues();
+        }
+
+        function loadAnimationFromParent(animationData) {
+            console.log('Loading animation from parent:', animationData);
+
+            // Load animation data from parent viewer into editor format
+            if (animationData.frameRate) {
+                editorFrameRate.value = animationData.frameRate;
+            }
+            if (animationData.startFrame !== undefined) {
+                editorStartFrame.value = animationData.startFrame;
+            }
+            if (animationData.endFrame !== undefined) {
+                editorEndFrame.value = animationData.endFrame;
+            }
+            if (animationData.loop !== undefined) {
+                editorLoop.checked = animationData.loop;
+            }
+
+            // Convert animation properties to editor keyframes format
+            editorKeyframes = {
+                brightness: [],
+                rotation: [],
+                tilt: []
+            };
+
+            // Handle both formats:
+            // 1. New format: animationData.properties[property] = array of keyframes
+            // 2. Original format: animationData[property].keyframe = array of ranges
+
+                        Object.keys(editorKeyframes).forEach(property => {
+                if (animationData.properties && animationData.properties[property]) {
+                    // New format - direct keyframes
+                    console.log(`Loading ${property} from new format:`, animationData.properties[property]);
+                    const keyframes = animationData.properties[property];
+                    editorKeyframes[property] = keyframes.map(kf => ({
+                        frame: kf.frame,
+                        value: kf.value,
+                        easing: kf.easing || [0.42, 0.0, 0.58, 1.0]
+                    }));
+                } else if (animationData[property] && animationData[property].keyframe) {
+                    // Original format - convert from ranges to keyframes
+                    console.log(`Loading ${property} from original format:`, animationData[property].keyframe);
+                    const ranges = animationData[property].keyframe;
+                    const keyframes = [];
+
+                    ranges.forEach(range => {
+                        // Add start keyframe
+                        keyframes.push({
+                            frame: range.from_frame,
+                            value: range.from_value,
+                            easing: range.bezier || [0.42, 0.0, 0.58, 1.0]
+                        });
+
+                        // Add end keyframe if it doesn't already exist
+                        const existingEnd = keyframes.find(kf => kf.frame === range.to_frame);
+                        if (!existingEnd) {
+                            keyframes.push({
+                                frame: range.to_frame,
+                                value: range.to_value,
+                                easing: [0.42, 0.0, 0.58, 1.0]
+                            });
+                        }
+                    });
+
+                    // Sort keyframes by frame and remove duplicates
+                    editorKeyframes[property] = keyframes
+                        .sort((a, b) => a.frame - b.frame)
+                        .filter((kf, index, arr) =>
+                            index === 0 || kf.frame !== arr[index - 1].frame
+                        );
+
+                    console.log(`Converted ${property} keyframes:`, editorKeyframes[property]);
+                } else {
+                    console.log(`No keyframes found for ${property}`);
+                }
+            });
+
+            // Mark that we've loaded from parent
+            hasLoadedFromParent = true;
+
+            // Update UI with loaded data
+            editorCurrentFrame = parseInt(editorStartFrame.value);
+            updateTimelineConfig();
             renderKeyframes();
             updateCurrentFrameValues();
         }
