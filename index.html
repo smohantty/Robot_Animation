@@ -882,29 +882,21 @@
             tiltJoint.position.set(0, 0, 0); // Relative to rotation joint
             rotationJoint.add(tiltJoint);
 
-            // 6. ARM ASSEMBLY - The horizontal arm that extends from the hinge (BIGGER)
-            const armGeometry = new THREE.CylinderGeometry(0.025 * scale, 0.025 * scale, 1.2 * scale, 8);
-            const armMaterial = new THREE.MeshLambertMaterial({ color: 0x505050 });
-            const arm = new THREE.Mesh(armGeometry, armMaterial);
-            arm.position.set(0, 0, 0.6 * scale); // Extends forward from the hinge
-            arm.rotation.x = Math.PI / 2; // Rotate to make it horizontal
-            tiltJoint.add(arm);
-
-            // 7. HEAD MOUNTING BRACKET - Connects arm to head (BIGGER)
+            // 6. HEAD MOUNTING BRACKET - Connects directly to the hinge (BIGGER)
             const bracketGeometry = new THREE.BoxGeometry(0.08 * scale, 0.06 * scale, 0.06 * scale);
             const bracketMaterial = new THREE.MeshLambertMaterial({ color: 0x444444 });
             const bracket = new THREE.Mesh(bracketGeometry, bracketMaterial);
-            bracket.position.set(0, 0, 1.2 * scale);
+            bracket.position.set(0, 0.1 * scale, 0); // Positioned directly above the hinge
             tiltJoint.add(bracket);
 
-            // 8. LAMP HEAD - Circular disk that houses the light (BIGGER)
+            // 7. LAMP HEAD - Circular disk that houses the light, directly on top (BIGGER)
             const headGeometry = new THREE.CylinderGeometry(0.35 * scale, 0.35 * scale, 0.08 * scale, 20);
             const headMaterial = new THREE.MeshLambertMaterial({ color: 0xf5f5f5 });
             const head = new THREE.Mesh(headGeometry, headMaterial);
-            head.position.set(0, 0, 1.2 * scale);
+            head.position.set(0, 0.1 * scale, 0); // Positioned directly above the hinge
             tiltJoint.add(head);
 
-            // 9. LIGHT BULB - The actual light source (RED) (BIGGER)
+            // 8. LIGHT BULB - The actual light source (RED) (BIGGER)
             const bulbGeometry = new THREE.SphereGeometry(0.1 * scale, 12, 8);
             const bulbMaterial = new THREE.MeshLambertMaterial({
                 color: 0x444444, // Dark when off
@@ -912,17 +904,17 @@
                 emissiveIntensity: 0
             });
             const bulb = new THREE.Mesh(bulbGeometry, bulbMaterial);
-            bulb.position.set(0, -0.02 * scale, 1.2 * scale);
+            bulb.position.set(0, 0.08 * scale, 0); // Positioned directly above the hinge
             tiltJoint.add(bulb);
 
-            // 10. ENHANCED LIGHT SOURCE - Focused red spotlight for floor only
+            // 9. ENHANCED LIGHT SOURCE - Focused red spotlight for floor only
             const spotLight = new THREE.SpotLight(0xff0000, 0, 25 * scale, Math.PI / 6, 0.3, 2);
-            spotLight.position.set(0, 0, 1.2 * scale);
-            spotLight.target.position.set(0, -10, 1.2 * scale); // Point downward
+            spotLight.position.set(0, 0.1 * scale, 0); // Positioned directly above the hinge
+            spotLight.target.position.set(0, -10, 0); // Point downward from center
             tiltJoint.add(spotLight);
             tiltJoint.add(spotLight.target); // Add target to tilt joint so it moves with lamp
 
-            // 11. LIGHT CONE VISUALIZATION - Shows red light casting downward like real lamp (BIGGER)
+            // 10. LIGHT CONE VISUALIZATION - Shows red light casting downward like real lamp (BIGGER)
             const coneGeometry = new THREE.ConeGeometry(0.8 * scale, 2.5 * scale, 8, 1, true);
             const coneMaterial = new THREE.MeshBasicMaterial({
                 color: 0xff0000, // Red cone
@@ -931,7 +923,7 @@
                 side: THREE.DoubleSide
             });
             const lightCone = new THREE.Mesh(coneGeometry, coneMaterial);
-            lightCone.position.set(0, -1.25 * scale, 1.2 * scale); // Position below the lamp head
+            lightCone.position.set(0, -1.15 * scale, 0); // Position below the lamp head, centered
             lightCone.rotation.x = 0; // Point cone downward (no rotation needed)
             lightCone.visible = false;
             tiltJoint.add(lightCone);
@@ -947,7 +939,6 @@
                 pointLight: spotLight,        // For light intensity
                 lightCone: lightCone,          // For light cone visibility
                 head: head,                    // Reference to head
-                arm: arm,                      // Reference to arm
                 base: base,                    // Reference to base
                 scale: scale                   // Store scale for brightness calculations
             };
