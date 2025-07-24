@@ -21,6 +21,7 @@
             color: #e0e0e0;
             margin: 0;
             padding: 0;
+            outline: none; /* Hide focus outline when auto-focused for keyboard shortcuts */
         }
 
         /* Iframe mode - full space utilization */
@@ -932,6 +933,10 @@
             loadDefaultKeyframes();
             setupEventListeners();
 
+            // Auto-focus the editor for keyboard shortcuts
+            document.body.tabIndex = 0;
+            document.body.focus();
+
             // Initialize sidebar state
             selectedKeyframe = null;
             updateSidebar();
@@ -1589,7 +1594,7 @@
             }
         }
 
-        function handleEditorKeydown(event) {
+                function handleEditorKeydown(event) {
             // Don't interfere when user is typing in input fields
             if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') return;
 
