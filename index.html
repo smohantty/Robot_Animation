@@ -596,6 +596,345 @@
             outline: 2px solid #00bcd4;
             outline-offset: 2px;
         }
+
+        /* Schema Modal */
+        .schema-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .schema-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .schema-content {
+            background: rgba(20, 20, 35, 0.95);
+            backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow:
+                0 30px 80px rgba(0, 0, 0, 0.6),
+                0 12px 32px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transform: scale(0.8);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .schema-modal.show .schema-content {
+            transform: scale(1);
+        }
+
+        .schema-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .schema-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #ffffff;
+            margin: 0;
+            letter-spacing: -0.01em;
+        }
+
+        .schema-close {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            border-radius: 12px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .schema-close:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .schema-body {
+            flex: 1;
+            overflow-y: auto;
+            margin: 0;
+            padding: 0;
+        }
+
+        .schema-json {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #e0e0e0;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .schema-readable {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 0;
+            max-height: 65vh;
+            overflow-y: auto;
+        }
+
+        .schema-section {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .schema-section:last-child {
+            border-bottom: none;
+        }
+
+        .schema-section-header {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 16px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .schema-section:not(:first-child) .schema-section-header {
+            border-radius: 0;
+        }
+
+        .schema-section:last-child .schema-section-header {
+            border-radius: 0 0 16px 16px;
+        }
+
+        .schema-section.expanded:last-child .schema-section-header {
+            border-radius: 0;
+        }
+
+        .schema-section-header:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .schema-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+            margin: 0;
+        }
+
+        .schema-section-toggle {
+            font-size: 14px;
+            color: #00bcd4;
+            transition: transform 0.2s ease;
+        }
+
+        .schema-section.expanded .schema-section-toggle {
+            transform: rotate(90deg);
+        }
+
+        .schema-section-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .schema-section.expanded .schema-section-content {
+            max-height: 1000px;
+        }
+
+        .schema-section-body {
+            padding: 20px;
+        }
+
+        .schema-property {
+            margin-bottom: 16px;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            border-left: 3px solid #00bcd4;
+        }
+
+        .schema-property-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #64ffda;
+            margin-bottom: 6px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        }
+
+        .schema-property-type {
+            font-size: 12px;
+            color: #f78c6c;
+            background: rgba(247, 140, 108, 0.1);
+            padding: 2px 8px;
+            border-radius: 8px;
+            display: inline-block;
+            margin-bottom: 6px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        }
+
+        .schema-property-desc {
+            font-size: 13px;
+            color: #c0c0c0;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .schema-property-range {
+            font-size: 12px;
+            color: #c3e88d;
+            background: rgba(195, 232, 141, 0.1);
+            padding: 4px 8px;
+            border-radius: 8px;
+            display: inline-block;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        }
+
+        .schema-property-required {
+            font-size: 11px;
+            color: #ff9cac;
+            background: rgba(255, 156, 172, 0.1);
+            padding: 2px 6px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-left: 8px;
+            font-weight: 500;
+        }
+
+        .schema-keyframe-example {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 8px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .schema-view-toggle {
+            margin-top: 16px;
+            text-align: center;
+        }
+
+        .toggle-view-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            border-radius: 8px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-view-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .schema-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn-copy {
+            background: linear-gradient(135deg, #9c27b0, #673ab7);
+            box-shadow: 0 2px 8px rgba(156, 39, 176, 0.3);
+        }
+
+        .btn-copy:hover {
+            box-shadow: 0 4px 16px rgba(156, 39, 176, 0.4);
+        }
+
+        .btn-download {
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+            box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+        }
+
+        .btn-download:hover {
+            box-shadow: 0 4px 16px rgba(255, 152, 0, 0.4);
+        }
+
+        /* JSON Syntax Highlighting */
+        .json-key {
+            color: #64ffda;
+        }
+
+        .json-string {
+            color: #c3e88d;
+        }
+
+        .json-number {
+            color: #f78c6c;
+        }
+
+        .json-boolean {
+            color: #ff9cac;
+        }
+
+        .json-null {
+            color: #546e7a;
+        }
+
+        /* Responsive schema modal */
+        @media (max-width: 768px) {
+            .schema-content {
+                margin: 20px;
+                padding: 20px;
+                max-width: calc(100vw - 40px);
+                max-height: calc(100vh - 40px);
+            }
+
+            .schema-title {
+                font-size: 20px;
+            }
+
+            .schema-json {
+                font-size: 12px;
+                padding: 16px;
+                max-height: 50vh;
+            }
+
+            .schema-actions {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
@@ -623,8 +962,11 @@
             <div class="section-label">Animation Source</div>
             <div class="control-row">
                 <button id="loadSampleBtn" class="btn">📄 Load Sample</button>
-                <button id="loadFileBtn" class="btn btn-secondary">�� Load File</button>
+                <button id="loadFileBtn" class="btn btn-secondary">📁 Load File</button>
                 <input type="file" id="fileInput" accept=".json" style="display: none;">
+            </div>
+            <div class="control-row">
+                <button id="schemaBtn" class="btn btn-secondary">📋 View Schema</button>
             </div>
         </div>
         <div class="control-section">
@@ -667,6 +1009,32 @@
         </div>
     </div>
 
+    <!-- Schema Modal -->
+    <div id="schemaModal" class="schema-modal">
+        <div class="schema-content">
+            <div class="schema-header">
+                <h2 class="schema-title">Animation Schema</h2>
+                <button class="schema-close" id="schemaCloseBtn">✕ Close</button>
+            </div>
+            <div class="schema-body">
+                <div class="schema-view-toggle">
+                    <button id="toggleViewBtn" class="toggle-view-btn">📋 Switch to Raw JSON</button>
+                </div>
+
+                <div id="schemaReadable" class="schema-readable">
+                    <!-- Readable format will be populated here -->
+                </div>
+
+                <pre class="schema-json" id="schemaJson" style="display: none;"></pre>
+
+                <div class="schema-actions">
+                    <button id="copySchemaBtn" class="btn btn-copy">📋 Copy to Clipboard</button>
+                    <button id="downloadSchemaBtn" class="btn btn-download">💾 Download File</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
         // Global variables
@@ -676,6 +1044,7 @@
         let isPlaying = false;
         let animationId = null;
         let startTime = 0;
+        let showReadableView = true;
 
         // DOM elements
         const canvas = document.getElementById('canvas');
@@ -684,6 +1053,7 @@
         const resetBtn = document.getElementById('resetBtn');
         const loadSampleBtn = document.getElementById('loadSampleBtn');
         const loadFileBtn = document.getElementById('loadFileBtn');
+        const schemaBtn = document.getElementById('schemaBtn');
         const fileInput = document.getElementById('fileInput');
         const status = document.getElementById('status');
         const frameSlider = document.getElementById('frameSlider');
@@ -692,6 +1062,13 @@
         const tiltValue = document.getElementById('tiltValue');
         const dropOverlay = document.getElementById('dropOverlay');
         const dropZone = dropOverlay.querySelector('.drop-zone');
+        const schemaModal = document.getElementById('schemaModal');
+        const schemaCloseBtn = document.getElementById('schemaCloseBtn');
+        const copySchemaBtn = document.getElementById('copySchemaBtn');
+        const downloadSchemaBtn = document.getElementById('downloadSchemaBtn');
+        const schemaJson = document.getElementById('schemaJson');
+        const schemaReadable = document.getElementById('schemaReadable');
+        const toggleViewBtn = document.getElementById('toggleViewBtn');
 
         // Sample animation data
         const sampleAnimation = {
@@ -743,6 +1120,99 @@
                         "bezier": [0.42, 0.0, 1.0, 1.0]
                     }
                 ]
+            }
+        };
+
+        // Animation schema data
+        const animationSchema = {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "Robot Animation Configuration Schema",
+            "type": "object",
+            "required": ["frameRate", "startFrame", "endFrame", "loop"],
+            "properties": {
+                "frameRate": {
+                    "type": "number",
+                    "minimum": 1,
+                    "maximum": 120,
+                    "description": "Animation playback rate in frames per second"
+                },
+                "startFrame": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Starting frame number of the animation"
+                },
+                "endFrame": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Ending frame number of the animation"
+                },
+                "loop": {
+                    "type": "boolean",
+                    "description": "Whether the animation should loop continuously"
+                },
+                "brightness": {
+                    "$ref": "#/definitions/animationProperty",
+                    "description": "Brightness Property animation configuration range [0.0, 100.0]"
+                },
+                "rotation": {
+                    "$ref": "#/definitions/animationProperty",
+                    "description": "Motor Rotation Property animation configuration range [0, 359] , 180 degree means robot facing-forward. the value is defined as absolute and mesured counter-clockwise"
+                },
+                "tilt": {
+                    "$ref": "#/definitions/animationProperty",
+                    "description": "Motor Tilt Property animation configuration range [-30, 90], -ve value => tilt downward, +ve value => tilt upward. 0 => horizontal plane"
+                }
+            },
+            "definitions": {
+                "animationProperty": {
+                    "type": "object",
+                    "required": ["animation", "keyframe"],
+                    "properties": {
+                        "animation": {
+                            "type": "boolean",
+                            "description": "Whether this property should be animated"
+                        },
+                        "keyframe": {
+                            "type": "array",
+                            "description": "Array of keyframes defining the animation",
+                            "items": {
+                                "type": "object",
+                                "required": ["from_frame", "to_frame", "from_value", "to_value", "bezier"],
+                                "properties": {
+                                    "from_frame": {
+                                        "type": "number",
+                                        "minimum": 0,
+                                        "description": "Starting frame of this keyframe segment"
+                                    },
+                                    "to_frame": {
+                                        "type": "number",
+                                        "minimum": 0,
+                                        "description": "Ending frame of this keyframe segment"
+                                    },
+                                    "from_value": {
+                                        "type": "number",
+                                        "description": "Starting value of this keyframe segment"
+                                    },
+                                    "to_value": {
+                                        "type": "number",
+                                        "description": "Ending value of this keyframe segment"
+                                    },
+                                    "bezier": {
+                                        "type": "array",
+                                        "description": "Bezier curve control points for interpolation, The array contains P1(OutTangent) and P2(Intangent) points of a cubic bezier curve where P1(0.0,0.0), P3(1.0, 1.0) ",
+                                        "items": {
+                                            "type": "number",
+                                            "minimum": 0,
+                                            "maximum": 1
+                                        },
+                                        "minItems": 4,
+                                        "maxItems": 4
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         };
 
@@ -953,7 +1423,17 @@
             resetBtn.addEventListener('click', resetAnimation);
             loadSampleBtn.addEventListener('click', loadSampleAnimation);
             loadFileBtn.addEventListener('click', () => fileInput.click());
+            schemaBtn.addEventListener('click', showSchema);
             fileInput.addEventListener('change', handleFileInputChange);
+
+            // Schema modal event listeners
+            schemaCloseBtn.addEventListener('click', hideSchema);
+            copySchemaBtn.addEventListener('click', copySchemaToClipboard);
+            downloadSchemaBtn.addEventListener('click', downloadSchemaFile);
+            toggleViewBtn.addEventListener('click', toggleSchemaView);
+            schemaModal.addEventListener('click', (e) => {
+                if (e.target === schemaModal) hideSchema();
+            });
 
             // Drag and drop
             document.addEventListener('dragenter', handleDragEnter);
@@ -1013,6 +1493,282 @@
             applyFrame(currentFrame);
             status.textContent = `✅ Sample loaded: ${animationData.endFrame - animationData.startFrame + 1} frames`;
             status.className = 'status success';
+        }
+
+                function showSchema() {
+            try {
+                // Prepare both views
+                const formattedSchema = JSON.stringify(animationSchema, null, 2);
+                schemaJson.textContent = formattedSchema;
+                createReadableSchema();
+
+                // Show the modal
+                schemaModal.classList.add('show');
+                status.textContent = '📋 Schema displayed';
+                status.className = 'status success';
+            } catch (error) {
+                console.error('Error displaying schema:', error);
+                status.textContent = '❌ Error displaying schema';
+                status.className = 'status error';
+            }
+        }
+
+        function createReadableSchema() {
+            const schema = animationSchema;
+
+            const readableHTML = `
+                <div class="schema-section expanded">
+                    <div class="schema-section-header" onclick="toggleSection(this)">
+                        <h3 class="schema-section-title">📋 Basic Configuration</h3>
+                        <span class="schema-section-toggle">▶</span>
+                    </div>
+                    <div class="schema-section-content">
+                        <div class="schema-section-body">
+                            <div class="schema-property">
+                                <div class="schema-property-name">frameRate</div>
+                                <span class="schema-property-type">number</span>
+                                <span class="schema-property-required">required</span>
+                                <div class="schema-property-desc">Animation playback rate in frames per second</div>
+                                <span class="schema-property-range">Range: 1-120</span>
+                            </div>
+                            <div class="schema-property">
+                                <div class="schema-property-name">startFrame</div>
+                                <span class="schema-property-type">number</span>
+                                <span class="schema-property-required">required</span>
+                                <div class="schema-property-desc">Starting frame number of the animation</div>
+                                <span class="schema-property-range">Minimum: 0</span>
+                            </div>
+                            <div class="schema-property">
+                                <div class="schema-property-name">endFrame</div>
+                                <span class="schema-property-type">number</span>
+                                <span class="schema-property-required">required</span>
+                                <div class="schema-property-desc">Ending frame number of the animation</div>
+                                <span class="schema-property-range">Minimum: 0</span>
+                            </div>
+                            <div class="schema-property">
+                                <div class="schema-property-name">loop</div>
+                                <span class="schema-property-type">boolean</span>
+                                <span class="schema-property-required">required</span>
+                                <div class="schema-property-desc">Whether the animation should loop continuously</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="schema-section expanded">
+                    <div class="schema-section-header" onclick="toggleSection(this)">
+                        <h3 class="schema-section-title">💡 Brightness Property</h3>
+                        <span class="schema-section-toggle">▶</span>
+                    </div>
+                    <div class="schema-section-content">
+                        <div class="schema-section-body">
+                            <div class="schema-property">
+                                <div class="schema-property-name">brightness</div>
+                                <span class="schema-property-type">animationProperty</span>
+                                <div class="schema-property-desc">Brightness Property animation configuration</div>
+                                <span class="schema-property-range">Range: 0.0 - 100.0</span>
+                                <div class="schema-keyframe-example">{
+  "animation": true,
+  "keyframe": [
+    {
+      "from_frame": 0,
+      "to_frame": 100,
+      "from_value": 0,
+      "to_value": 100,
+      "bezier": [0.42, 0.0, 0.58, 1.0]
+    }
+  ]
+}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="schema-section expanded">
+                    <div class="schema-section-header" onclick="toggleSection(this)">
+                        <h3 class="schema-section-title">🔄 Rotation Property</h3>
+                        <span class="schema-section-toggle">▶</span>
+                    </div>
+                    <div class="schema-section-content">
+                        <div class="schema-section-body">
+                            <div class="schema-property">
+                                <div class="schema-property-name">rotation</div>
+                                <span class="schema-property-type">animationProperty</span>
+                                <div class="schema-property-desc">Motor Rotation Property animation configuration. 180 degrees means robot facing-forward. Values are absolute and measured counter-clockwise.</div>
+                                <span class="schema-property-range">Range: 0 - 359</span>
+                                <div class="schema-keyframe-example">{
+  "animation": true,
+  "keyframe": [
+    {
+      "from_frame": 0,
+      "to_frame": 70,
+      "from_value": 180,
+      "to_value": 0,
+      "bezier": [0.42, 0.0, 0.58, 1.0]
+    }
+  ]
+}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="schema-section expanded">
+                    <div class="schema-section-header" onclick="toggleSection(this)">
+                        <h3 class="schema-section-title">↕️ Tilt Property</h3>
+                        <span class="schema-section-toggle">▶</span>
+                    </div>
+                    <div class="schema-section-content">
+                        <div class="schema-section-body">
+                            <div class="schema-property">
+                                <div class="schema-property-name">tilt</div>
+                                <span class="schema-property-type">animationProperty</span>
+                                <div class="schema-property-desc">Motor Tilt Property animation configuration. Negative values tilt downward, positive values tilt upward. 0 means horizontal plane.</div>
+                                <span class="schema-property-range">Range: -30 to 90</span>
+                                <div class="schema-keyframe-example">{
+  "animation": true,
+  "keyframe": [
+    {
+      "from_frame": 0,
+      "to_frame": 50,
+      "from_value": 0,
+      "to_value": 45,
+      "bezier": [0.42, 0.0, 0.58, 1.0]
+    }
+  ]
+}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="schema-section expanded">
+                    <div class="schema-section-header" onclick="toggleSection(this)">
+                        <h3 class="schema-section-title">🔧 Keyframe Structure</h3>
+                        <span class="schema-section-toggle">▶</span>
+                    </div>
+                    <div class="schema-section-content">
+                        <div class="schema-section-body">
+                            <div class="schema-property">
+                                <div class="schema-property-name">from_frame</div>
+                                <span class="schema-property-type">number</span>
+                                <span class="schema-property-required">required</span>
+                                <div class="schema-property-desc">Starting frame of this keyframe segment</div>
+                                <span class="schema-property-range">Minimum: 0</span>
+                            </div>
+                            <div class="schema-property">
+                                <div class="schema-property-name">to_frame</div>
+                                <span class="schema-property-type">number</span>
+                                <span class="schema-property-required">required</span>
+                                <div class="schema-property-desc">Ending frame of this keyframe segment</div>
+                                <span class="schema-property-range">Minimum: 0</span>
+                            </div>
+                            <div class="schema-property">
+                                <div class="schema-property-name">from_value</div>
+                                <span class="schema-property-type">number</span>
+                                <span class="schema-property-required">required</span>
+                                <div class="schema-property-desc">Starting value of this keyframe segment</div>
+                            </div>
+                            <div class="schema-property">
+                                <div class="schema-property-name">to_value</div>
+                                <span class="schema-property-type">number</span>
+                                <span class="schema-property-required">required</span>
+                                <div class="schema-property-desc">Ending value of this keyframe segment</div>
+                            </div>
+                            <div class="schema-property">
+                                <div class="schema-property-name">bezier</div>
+                                <span class="schema-property-type">array[4]</span>
+                                <span class="schema-property-required">required</span>
+                                <div class="schema-property-desc">Bezier curve control points for interpolation. Contains P1(OutTangent) and P2(InTangent) points of a cubic bezier curve where P0(0.0,0.0) and P3(1.0,1.0)</div>
+                                <span class="schema-property-range">Values: 0.0 - 1.0</span>
+                                <div class="schema-keyframe-example">// Common easing curves:
+[0.42, 0.0, 0.58, 1.0]  // ease
+[0.42, 0.0, 1.0, 1.0]   // ease-out
+[0.0, 0.0, 0.58, 1.0]   // ease-in
+[0.25, 0.1, 0.25, 1.0]  // ease-in-out</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            schemaReadable.innerHTML = readableHTML;
+        }
+
+        function toggleSchemaView() {
+            showReadableView = !showReadableView;
+
+            if (showReadableView) {
+                schemaReadable.style.display = 'block';
+                schemaJson.style.display = 'none';
+                toggleViewBtn.textContent = '📋 Switch to Raw JSON';
+            } else {
+                schemaReadable.style.display = 'none';
+                schemaJson.style.display = 'block';
+                toggleViewBtn.textContent = '📖 Switch to Readable View';
+            }
+        }
+
+        function toggleSection(header) {
+            const section = header.parentElement;
+            section.classList.toggle('expanded');
+        }
+
+        // Make toggleSection available globally
+        window.toggleSection = toggleSection;
+
+        function hideSchema() {
+            schemaModal.classList.remove('show');
+        }
+
+        function copySchemaToClipboard() {
+            try {
+                const schemaText = JSON.stringify(animationSchema, null, 2);
+                navigator.clipboard.writeText(schemaText).then(() => {
+                    status.textContent = '✅ Schema copied to clipboard';
+                    status.className = 'status success';
+                }).catch(() => {
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = schemaText;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    status.textContent = '✅ Schema copied to clipboard';
+                    status.className = 'status success';
+                });
+            } catch (error) {
+                console.error('Error copying schema:', error);
+                status.textContent = '❌ Error copying schema';
+                status.className = 'status error';
+            }
+        }
+
+        function downloadSchemaFile() {
+            try {
+                const schemaJson = JSON.stringify(animationSchema, null, 2);
+                const blob = new Blob([schemaJson], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+
+                const downloadLink = document.createElement('a');
+                downloadLink.href = url;
+                downloadLink.download = 'robot_animation_schema.json';
+                downloadLink.style.display = 'none';
+
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+
+                URL.revokeObjectURL(url);
+
+                status.textContent = '✅ Schema downloaded successfully';
+                status.className = 'status success';
+            } catch (error) {
+                console.error('Error downloading schema:', error);
+                status.textContent = '❌ Error downloading schema';
+                status.className = 'status error';
+            }
         }
 
         async function loadAnimationFromFile(file) {
@@ -1104,8 +1860,12 @@
         }
 
         function handleKeyDown(event) {
-            if (event.key === 'Escape' && dropOverlay.classList.contains('show')) {
-                hideDropOverlay();
+            if (event.key === 'Escape') {
+                if (dropOverlay.classList.contains('show')) {
+                    hideDropOverlay();
+                } else if (schemaModal.classList.contains('show')) {
+                    hideSchema();
+                }
             }
         }
 
