@@ -1,0 +1,273 @@
+{
+  "frameRate": 60,
+  "startFrame": 0,
+  "endFrame": 480,
+  "loop": true,
+  "brightness": {
+    "animation": true,
+    "keyframe": [
+      {
+        "from_frame": 0,
+        "to_frame": 30,
+        "from_value": 20,
+        "to_value": 100,
+        "bezier": [0.68, -0.55, 0.265, 1.55]
+      },
+      {
+        "from_frame": 30,
+        "to_frame": 60,
+        "from_value": 100,
+        "to_value": 40,
+        "bezier": [0.175, 0.885, 0.32, 1.275]
+      },
+      {
+        "from_frame": 60,
+        "to_frame": 90,
+        "from_value": 40,
+        "to_value": 95,
+        "bezier": [0.68, -0.55, 0.265, 1.55]
+      },
+      {
+        "from_frame": 90,
+        "to_frame": 120,
+        "from_value": 95,
+        "to_value": 15,
+        "bezier": [0.6, 0.04, 0.98, 0.335]
+      },
+      {
+        "from_frame": 120,
+        "to_frame": 150,
+        "from_value": 15,
+        "to_value": 85,
+        "bezier": [0.25, 0.46, 0.45, 0.94]
+      },
+      {
+        "from_frame": 150,
+        "to_frame": 180,
+        "from_value": 85,
+        "to_value": 60,
+        "bezier": [0.55, 0.085, 0.68, 0.53]
+      },
+      {
+        "from_frame": 180,
+        "to_frame": 210,
+        "from_value": 60,
+        "to_value": 100,
+        "bezier": [0.215, 0.61, 0.355, 1.0]
+      },
+      {
+        "from_frame": 210,
+        "to_frame": 240,
+        "from_value": 100,
+        "to_value": 30,
+        "bezier": [0.755, 0.05, 0.855, 0.06]
+      },
+      {
+        "from_frame": 240,
+        "to_frame": 270,
+        "from_value": 30,
+        "to_value": 90,
+        "bezier": [0.23, 1.0, 0.32, 1.0]
+      },
+      {
+        "from_frame": 270,
+        "to_frame": 300,
+        "from_value": 90,
+        "to_value": 45,
+        "bezier": [0.645, 0.045, 0.355, 1.0]
+      },
+      {
+        "from_frame": 300,
+        "to_frame": 330,
+        "from_value": 45,
+        "to_value": 95,
+        "bezier": [0.68, -0.55, 0.265, 1.55]
+      },
+      {
+        "from_frame": 330,
+        "to_frame": 360,
+        "from_value": 95,
+        "to_value": 25,
+        "bezier": [0.6, -0.28, 0.735, 0.045]
+      },
+      {
+        "from_frame": 360,
+        "to_frame": 390,
+        "from_value": 25,
+        "to_value": 80,
+        "bezier": [0.175, 0.885, 0.32, 1.275]
+      },
+      {
+        "from_frame": 390,
+        "to_frame": 420,
+        "from_value": 80,
+        "to_value": 50,
+        "bezier": [0.39, 0.575, 0.565, 1.0]
+      },
+      {
+        "from_frame": 420,
+        "to_frame": 450,
+        "from_value": 50,
+        "to_value": 100,
+        "bezier": [0.25, 0.46, 0.45, 0.94]
+      },
+      {
+        "from_frame": 450,
+        "to_frame": 480,
+        "from_value": 100,
+        "to_value": 20,
+        "bezier": [0.55, 0.055, 0.675, 0.19]
+      }
+    ]
+  },
+  "rotation": {
+    "animation": true,
+    "keyframe": [
+      {
+        "from_frame": 0,
+        "to_frame": 60,
+        "from_value": 0,
+        "to_value": 45,
+        "bezier": [0.25, 0.46, 0.45, 0.94]
+      },
+      {
+        "from_frame": 60,
+        "to_frame": 120,
+        "from_value": 45,
+        "to_value": -30,
+        "bezier": [0.55, 0.085, 0.68, 0.53]
+      },
+      {
+        "from_frame": 120,
+        "to_frame": 180,
+        "from_value": -30,
+        "to_value": 90,
+        "bezier": [0.215, 0.61, 0.355, 1.0]
+      },
+      {
+        "from_frame": 180,
+        "to_frame": 240,
+        "from_value": 90,
+        "to_value": -45,
+        "bezier": [0.755, 0.05, 0.855, 0.06]
+      },
+      {
+        "from_frame": 240,
+        "to_frame": 300,
+        "from_value": -45,
+        "to_value": 120,
+        "bezier": [0.23, 1.0, 0.32, 1.0]
+      },
+      {
+        "from_frame": 300,
+        "to_frame": 360,
+        "from_value": 120,
+        "to_value": -60,
+        "bezier": [0.645, 0.045, 0.355, 1.0]
+      },
+      {
+        "from_frame": 360,
+        "to_frame": 420,
+        "from_value": -60,
+        "to_value": 75,
+        "bezier": [0.68, -0.55, 0.265, 1.55]
+      },
+      {
+        "from_frame": 420,
+        "to_frame": 480,
+        "from_value": 75,
+        "to_value": 0,
+        "bezier": [0.6, -0.28, 0.735, 0.045]
+      }
+    ]
+  },
+  "tilt": {
+    "animation": true,
+    "keyframe": [
+      {
+        "from_frame": 0,
+        "to_frame": 40,
+        "from_value": 0,
+        "to_value": 25,
+        "bezier": [0.68, -0.55, 0.265, 1.55]
+      },
+      {
+        "from_frame": 40,
+        "to_frame": 80,
+        "from_value": 25,
+        "to_value": -15,
+        "bezier": [0.175, 0.885, 0.32, 1.275]
+      },
+      {
+        "from_frame": 80,
+        "to_frame": 120,
+        "from_value": -15,
+        "to_value": 30,
+        "bezier": [0.6, 0.04, 0.98, 0.335]
+      },
+      {
+        "from_frame": 120,
+        "to_frame": 160,
+        "from_value": 30,
+        "to_value": -20,
+        "bezier": [0.25, 0.46, 0.45, 0.94]
+      },
+      {
+        "from_frame": 160,
+        "to_frame": 200,
+        "from_value": -20,
+        "to_value": 35,
+        "bezier": [0.55, 0.085, 0.68, 0.53]
+      },
+      {
+        "from_frame": 200,
+        "to_frame": 240,
+        "from_value": 35,
+        "to_value": -10,
+        "bezier": [0.215, 0.61, 0.355, 1.0]
+      },
+      {
+        "from_frame": 240,
+        "to_frame": 280,
+        "from_value": -10,
+        "to_value": 20,
+        "bezier": [0.755, 0.05, 0.855, 0.06]
+      },
+      {
+        "from_frame": 280,
+        "to_frame": 320,
+        "from_value": 20,
+        "to_value": -25,
+        "bezier": [0.23, 1.0, 0.32, 1.0]
+      },
+      {
+        "from_frame": 320,
+        "to_frame": 360,
+        "from_value": -25,
+        "to_value": 15,
+        "bezier": [0.645, 0.045, 0.355, 1.0]
+      },
+      {
+        "from_frame": 360,
+        "to_frame": 400,
+        "from_value": 15,
+        "to_value": -30,
+        "bezier": [0.68, -0.55, 0.265, 1.55]
+      },
+      {
+        "from_frame": 400,
+        "to_frame": 440,
+        "from_value": -30,
+        "to_value": 10,
+        "bezier": [0.6, -0.28, 0.735, 0.045]
+      },
+      {
+        "from_frame": 440,
+        "to_frame": 480,
+        "from_value": 10,
+        "to_value": 0,
+        "bezier": [0.175, 0.885, 0.32, 1.275]
+      }
+    ]
+  }
+}
