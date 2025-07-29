@@ -2470,6 +2470,11 @@
                     event.preventDefault();
                     closeEditor();
                     break;
+                case 'Delete':
+                case 'Backspace':
+                    event.preventDefault();
+                    deleteSelectedKeyframe();
+                    break;
             }
         }
 
