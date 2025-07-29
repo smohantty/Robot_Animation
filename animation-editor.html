@@ -313,33 +313,102 @@
             cursor: crosshair;
         }
 
-        .keyframe {
+                .keyframe {
             position: absolute;
-            width: 12px;
-            height: 12px;
-            background: #00bcd4;
-            border: 2px solid #ffffff;
-            border-radius: 50%;
+            height: 4px;
+            background: linear-gradient(90deg, #00bcd4, #009688);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             cursor: grab;
-            transform: translate(-50%, -50%);
             top: 50%;
+            transform: translateY(-50%);
             transition: all 0.2s ease;
             z-index: 10;
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .keyframe::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg,
+                rgba(255, 255, 255, 0.1) 0%,
+                rgba(255, 255, 255, 0.05) 50%,
+                rgba(255, 255, 255, 0.1) 100%);
+            border-radius: 2px;
+            pointer-events: none;
         }
 
         .keyframe:hover {
-            transform: translate(-50%, -50%) scale(1.2);
-            box-shadow: 0 0 10px rgba(0, 188, 212, 0.5);
+            height: 6px;
+            box-shadow: 0 0 8px rgba(0, 188, 212, 0.4);
+            transform: translateY(-50%) scaleY(1.2);
         }
 
         .keyframe.selected {
-            background: #ff9800;
-            box-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
+            background: linear-gradient(90deg, #ff9800, #f57c00);
+            border-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 0 12px rgba(255, 152, 0, 0.6);
+            height: 6px;
         }
 
         .keyframe:active {
             cursor: grabbing;
         }
+
+        .keyframe-handle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #ffffff;
+            border: 2px solid #00bcd4;
+            border-radius: 50%;
+            cursor: grab;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 11;
+            transition: all 0.2s ease;
+        }
+
+        .keyframe-handle:hover {
+            transform: translate(-50%, -50%) scale(1.3);
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+        }
+
+        .keyframe.selected .keyframe-handle {
+            border-color: #ff9800;
+            background: #ff9800;
+        }
+
+        .keyframe-handle:active {
+            cursor: grabbing;
+        }
+
+        .keyframe-tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .keyframe-tooltip.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+
 
         .playhead {
             position: absolute;
@@ -432,6 +501,13 @@
         }
 
         .editor-field {
+            margin-bottom: 12px;
+        }
+
+        .editor-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
             margin-bottom: 12px;
         }
 
@@ -770,7 +846,7 @@
 
 
     <script>
-        // Global variables
+        // Global variables - storing as independent segments
         let editorKeyframes = {
             brightness: [],
             rotation: [],
@@ -1085,7 +1161,7 @@
             renderKeyframes();
         }
 
-                function renderKeyframes() {
+                                        function renderKeyframes() {
             // Clear existing keyframes
             document.querySelectorAll('.keyframe').forEach(kf => kf.remove());
 
@@ -1094,16 +1170,65 @@
             // Render keyframes for each property
             Object.keys(editorKeyframes).forEach(property => {
                 const track = document.getElementById(property + 'Track');
-                editorKeyframes[property].forEach((keyframe, index) => {
+                const segments = editorKeyframes[property];
+
+                // Render each independent segment
+                segments.forEach((segment, index) => {
                     const keyframeEl = document.createElement('div');
                     keyframeEl.className = 'keyframe';
-                    keyframeEl.style.left = ((keyframe.frame - startFrame) * pixelsPerFrame) + 'px';
+
+                    // Calculate position and width for the line segment
+                    const startX = (segment.startFrame - startFrame) * pixelsPerFrame;
+                    const endX = (segment.endFrame - startFrame) * pixelsPerFrame;
+                    const width = endX - startX;
+
+                    keyframeEl.style.left = startX + 'px';
+                    keyframeEl.style.width = width + 'px';
                     keyframeEl.dataset.property = property;
                     keyframeEl.dataset.index = index;
+                    keyframeEl.dataset.startFrame = segment.startFrame;
+                    keyframeEl.dataset.endFrame = segment.endFrame;
+                    keyframeEl.dataset.startValue = segment.startValue;
+                    keyframeEl.dataset.endValue = segment.endValue;
+
+                    // Add handles at start and end of the line
+                    const startHandle = document.createElement('div');
+                    startHandle.className = 'keyframe-handle';
+                    startHandle.style.left = '0px';
+                    startHandle.dataset.handleType = 'start';
+                    startHandle.dataset.keyframeIndex = index;
+
+                    const endHandle = document.createElement('div');
+                    endHandle.className = 'keyframe-handle';
+                    endHandle.style.left = '100%';
+                    endHandle.dataset.handleType = 'end';
+                    endHandle.dataset.keyframeIndex = index;
+
+                    keyframeEl.appendChild(startHandle);
+                    keyframeEl.appendChild(endHandle);
 
                     keyframeEl.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        selectKeyframe(property, index);
+                        if (!e.target.classList.contains('keyframe-handle')) {
+                            e.stopPropagation();
+                            selectKeyframe(property, index);
+                        }
+                    });
+
+                    // Add tooltip functionality
+                    keyframeEl.addEventListener('mouseenter', (e) => {
+                        showKeyframeTooltip(e, property, index, segment);
+                    });
+
+                    keyframeEl.addEventListener('mouseleave', hideKeyframeTooltip);
+
+                    // Handle events for the handles
+                    [startHandle, endHandle].forEach(handle => {
+                        handle.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            const handleType = handle.dataset.handleType;
+                            const keyframeIndex = parseInt(handle.dataset.keyframeIndex);
+                            selectKeyframeHandle(property, keyframeIndex, handleType);
+                        });
                     });
 
                     track.appendChild(keyframeEl);
@@ -1135,28 +1260,38 @@
             updatePlayhead();
         }
 
-        function addKeyframeAtFrame(property, frame) {
+                                function addKeyframeAtFrame(property, frame) {
             const defaultValues = {
                 brightness: 50,
                 rotation: 180,
                 tilt: 0
             };
 
-            const keyframe = {
-                frame: frame,
-                value: defaultValues[property],
-                easing: [0.42, 0.0, 0.58, 1.0] // ease
+            const segments = editorKeyframes[property];
+
+            // Create a new segment starting at the specified frame
+            const newSegment = {
+                startFrame: frame,
+                endFrame: frame + 30, // Default 30 frame duration
+                startValue: defaultValues[property],
+                endValue: defaultValues[property],
+                easing: [0.42, 0.0, 0.58, 1.0]
             };
 
-            // Insert keyframe in correct position
-            const keyframes = editorKeyframes[property];
-            let insertIndex = keyframes.findIndex(kf => kf.frame > frame);
-            if (insertIndex === -1) insertIndex = keyframes.length;
+            // Add the segment
+            segments.push(newSegment);
 
-            keyframes.splice(insertIndex, 0, keyframe);
+            // Sort segments by start frame to maintain chronological order
+            segments.sort((a, b) => a.startFrame - b.startFrame);
 
             renderKeyframes();
-            selectKeyframe(property, insertIndex);
+
+            // Select the new segment
+            const segmentIndex = segments.findIndex(s => s.startFrame === frame);
+            if (segmentIndex !== -1) {
+                selectKeyframe(property, segmentIndex);
+            }
+
             updateCurrentFrameValues();
         }
 
@@ -1170,11 +1305,13 @@
             }
         }
 
-        function deleteSelectedKeyframe() {
+                                                function deleteSelectedKeyframe() {
             if (!selectedKeyframe) return;
 
-            const keyframes = editorKeyframes[selectedKeyframe.property];
-            keyframes.splice(selectedKeyframe.index, 1);
+            const segments = editorKeyframes[selectedKeyframe.property];
+
+            // Delete the selected segment
+            segments.splice(selectedKeyframe.index, 1);
 
             selectedKeyframe = null;
             renderKeyframes();
@@ -1192,12 +1329,29 @@
             const keyframeEl = document.querySelector(`[data-property="${property}"][data-index="${index}"]`);
             if (keyframeEl) {
                 keyframeEl.classList.add('selected');
-                selectedKeyframe = { property, index };
+                selectedKeyframe = { property, index, type: 'segment' };
                 updateSidebar();
             }
         }
 
-        function updateSidebar() {
+        function selectKeyframeHandle(property, index, handleType) {
+            // Clear previous selection
+            document.querySelectorAll('.keyframe.selected').forEach(kf => {
+                kf.classList.remove('selected');
+            });
+
+            // Select the keyframe segment and highlight the specific handle
+            const keyframeEl = document.querySelector(`[data-property="${property}"][data-index="${index}"]`);
+            if (keyframeEl) {
+                keyframeEl.classList.add('selected');
+                selectedKeyframe = { property, index, type: 'handle', handleType };
+                updateSidebar();
+            }
+        }
+
+
+
+                                function updateSidebar() {
             if (!selectedKeyframe) {
                 keyframeEditorSection.style.display = 'none';
                 noKeyframeSelected.style.display = 'block';
@@ -1207,7 +1361,9 @@
             noKeyframeSelected.style.display = 'none';
             keyframeEditorSection.style.display = 'block';
 
-            const keyframe = editorKeyframes[selectedKeyframe.property][selectedKeyframe.index];
+            const segments = editorKeyframes[selectedKeyframe.property];
+            const segment = segments[selectedKeyframe.index];
+
             const propertyInfo = {
                 brightness: { name: 'Brightness', min: 0, max: 100, unit: '%' },
                 rotation: { name: 'Rotation', min: 0, max: 359, unit: '°' },
@@ -1216,16 +1372,33 @@
 
             const info = propertyInfo[selectedKeyframe.property];
 
+            let title = `${info.name} Keyframe Segment`;
+            if (selectedKeyframe.type === 'handle') {
+                title += ` (${selectedKeyframe.handleType === 'start' ? 'Start' : 'End'} Handle)`;
+            }
+
             keyframeEditorSection.innerHTML = `
                 <div class="keyframe-editor">
-                    <h4>${info.name} Keyframe</h4>
-                    <div class="editor-field">
-                        <label>Frame</label>
-                        <input type="number" id="keyframeFrame" value="${keyframe.frame}" min="0">
+                    <h4>${title}</h4>
+                    <div class="editor-row">
+                        <div class="editor-field">
+                            <label>Start Frame</label>
+                            <input type="number" id="keyframeStartFrame" value="${segment.startFrame}" min="0">
+                        </div>
+                        <div class="editor-field">
+                            <label>End Frame</label>
+                            <input type="number" id="keyframeEndFrame" value="${segment.endFrame}" min="0">
+                        </div>
                     </div>
-                    <div class="editor-field">
-                        <label>Value (${info.unit})</label>
-                        <input type="number" id="keyframeValue" value="${keyframe.value}" min="${info.min}" max="${info.max}" step="0.1">
+                    <div class="editor-row">
+                        <div class="editor-field">
+                            <label>Start Value (${info.unit})</label>
+                            <input type="number" id="keyframeStartValue" value="${segment.startValue}" min="${info.min}" max="${info.max}" step="0.1">
+                        </div>
+                        <div class="editor-field">
+                            <label>End Value (${info.unit})</label>
+                            <input type="number" id="keyframeEndValue" value="${segment.endValue}" min="${info.min}" max="${info.max}" step="0.1">
+                        </div>
                     </div>
                     <div class="editor-field">
                         <label>Easing</label>
@@ -1235,14 +1408,16 @@
                             <div class="easing-preset" data-easing="0.0,0.0,0.58,1.0">Ease In</div>
                             <div class="easing-preset" data-easing="0.25,0.1,0.25,1.0">Ease In-Out</div>
                         </div>
-                        <input type="text" id="keyframeEasing" value="${keyframe.easing.join(',')}" placeholder="p1x,p1y,p2x,p2y">
+                        <input type="text" id="keyframeEasing" value="${segment.easing.join(',')}" placeholder="p1x,p1y,p2x,p2y">
                     </div>
                 </div>
             `;
 
             // Add event listeners
-            document.getElementById('keyframeFrame').addEventListener('change', updateKeyframeProperty);
-            document.getElementById('keyframeValue').addEventListener('change', updateKeyframeProperty);
+            document.getElementById('keyframeStartFrame').addEventListener('change', updateKeyframeProperty);
+            document.getElementById('keyframeEndFrame').addEventListener('change', updateKeyframeProperty);
+            document.getElementById('keyframeStartValue').addEventListener('change', updateKeyframeProperty);
+            document.getElementById('keyframeEndValue').addEventListener('change', updateKeyframeProperty);
             document.getElementById('keyframeEasing').addEventListener('change', updateKeyframeProperty);
 
             // Easing preset listeners - need to use setTimeout to ensure DOM is ready
@@ -1280,31 +1455,41 @@
             addCustomEasingPreview();
         }
 
-        function updateKeyframeProperty() {
+                                                        function updateKeyframeProperty() {
             if (!selectedKeyframe) return;
 
-            const keyframe = editorKeyframes[selectedKeyframe.property][selectedKeyframe.index];
-            const frameInput = document.getElementById('keyframeFrame');
-            const valueInput = document.getElementById('keyframeValue');
+            const segments = editorKeyframes[selectedKeyframe.property];
+            const segment = segments[selectedKeyframe.index];
+
+            const startFrameInput = document.getElementById('keyframeStartFrame');
+            const endFrameInput = document.getElementById('keyframeEndFrame');
+            const startValueInput = document.getElementById('keyframeStartValue');
+            const endValueInput = document.getElementById('keyframeEndValue');
             const easingInput = document.getElementById('keyframeEasing');
 
-            if (frameInput) keyframe.frame = parseInt(frameInput.value);
-            if (valueInput) keyframe.value = parseFloat(valueInput.value);
+            // Update the independent segment - no cross-contamination possible
+            if (startFrameInput) segment.startFrame = parseInt(startFrameInput.value);
+            if (endFrameInput) segment.endFrame = parseInt(endFrameInput.value);
+            if (startValueInput) segment.startValue = parseFloat(startValueInput.value);
+            if (endValueInput) segment.endValue = parseFloat(endValueInput.value);
+
             if (easingInput) {
                 const easingValues = easingInput.value.split(',').map(v => parseFloat(v.trim()));
                 if (easingValues.length === 4 && easingValues.every(v => !isNaN(v))) {
-                    keyframe.easing = easingValues;
+                    segment.easing = easingValues;
                 }
             }
 
-            // Re-sort keyframes by frame
-            editorKeyframes[selectedKeyframe.property].sort((a, b) => a.frame - b.frame);
+            // Re-sort segments by start frame to maintain chronological order
+            editorKeyframes[selectedKeyframe.property].sort((a, b) => a.startFrame - b.startFrame);
 
             renderKeyframes();
 
-            // Find and reselect the keyframe after sorting
-            const newIndex = editorKeyframes[selectedKeyframe.property].findIndex(kf => kf === keyframe);
-            selectKeyframe(selectedKeyframe.property, newIndex);
+            // Find and reselect the segment after sorting
+            const newIndex = editorKeyframes[selectedKeyframe.property].findIndex(s => s === segment);
+            if (newIndex !== -1) {
+                selectKeyframe(selectedKeyframe.property, newIndex);
+            }
             updateCurrentFrameValues();
         }
 
@@ -1376,6 +1561,51 @@
             }, 200);
         }
 
+                                function showKeyframeTooltip(event, property, index, segment) {
+            const tooltip = document.getElementById('keyframeTooltip') || createKeyframeTooltip();
+
+            const propertyInfo = {
+                brightness: { name: 'Brightness', unit: '%' },
+                rotation: { name: 'Rotation', unit: '°' },
+                tilt: { name: 'Tilt', unit: '°' }
+            };
+
+            const info = propertyInfo[property];
+
+            tooltip.innerHTML = `
+                <strong>${info.name} Segment</strong><br>
+                Frame ${segment.startFrame} → ${segment.endFrame}<br>
+                Value ${segment.startValue}${info.unit} → ${segment.endValue}${info.unit}
+            `;
+
+            const rect = event.target.getBoundingClientRect();
+            tooltip.style.left = (rect.left + rect.width / 2) + 'px';
+            tooltip.style.top = (rect.top - 10) + 'px';
+            tooltip.style.display = 'block';
+
+            setTimeout(() => tooltip.classList.add('show'), 10);
+        }
+
+        function hideKeyframeTooltip() {
+            const tooltip = document.getElementById('keyframeTooltip');
+            if (tooltip) {
+                tooltip.classList.remove('show');
+                setTimeout(() => {
+                    if (!tooltip.classList.contains('show')) {
+                        tooltip.style.display = 'none';
+                    }
+                }, 200);
+            }
+        }
+
+        function createKeyframeTooltip() {
+            const tooltip = document.createElement('div');
+            tooltip.id = 'keyframeTooltip';
+            tooltip.className = 'keyframe-tooltip';
+            document.body.appendChild(tooltip);
+            return tooltip;
+        }
+
         function updateCurveDisplay(bezierValues) {
             const [p1x, p1y, p2x, p2y] = bezierValues;
 
@@ -1422,20 +1652,49 @@
         }
 
         function loadDefaultKeyframes() {
-            // Load some default keyframes to get started
+            // Load some default keyframes as independent segments
             editorKeyframes = {
                 brightness: [
-                    { frame: 0, value: 0, easing: [0.42, 0.0, 0.58, 1.0] },
-                    { frame: 100, value: 100, easing: [0.42, 0.0, 1.0, 1.0] },
-                    { frame: 200, value: 0, easing: [0.42, 0.0, 1.0, 1.0] }
+                    {
+                        startFrame: 0, endFrame: 100,
+                        startValue: 0, endValue: 100,
+                        easing: [0.42, 0.0, 0.58, 1.0]
+                    },
+                    {
+                        startFrame: 100, endFrame: 200,
+                        startValue: 100, endValue: 0,
+                        easing: [0.42, 0.0, 1.0, 1.0]
+                    }
                 ],
                 rotation: [
-                    { frame: 0, value: 180, easing: [0.42, 0.0, 0.58, 1.0] },
-                    { frame: 70, value: 0, easing: [0.42, 0.0, 1.0, 1.0] },
-                    { frame: 150, value: 359, easing: [0.42, 0.0, 1.0, 1.0] },
-                    { frame: 200, value: 180, easing: [0.42, 0.0, 1.0, 1.0] }
+                    {
+                        startFrame: 0, endFrame: 70,
+                        startValue: 180, endValue: 0,
+                        easing: [0.42, 0.0, 0.58, 1.0]
+                    },
+                    {
+                        startFrame: 70, endFrame: 150,
+                        startValue: 0, endValue: 359,
+                        easing: [0.42, 0.0, 1.0, 1.0]
+                    },
+                    {
+                        startFrame: 150, endFrame: 200,
+                        startValue: 359, endValue: 180,
+                        easing: [0.42, 0.0, 1.0, 1.0]
+                    }
                 ],
-                tilt: []
+                tilt: [
+                    {
+                        startFrame: 0, endFrame: 100,
+                        startValue: 0, endValue: 30,
+                        easing: [0.42, 0.0, 0.58, 1.0]
+                    },
+                    {
+                        startFrame: 100, endFrame: 200,
+                        startValue: 30, endValue: 0,
+                        easing: [0.42, 0.0, 1.0, 1.0]
+                    }
+                ]
             };
             renderKeyframes();
             updateCurrentFrameValues();
@@ -1610,55 +1869,53 @@
         }
 
         function interpolatePropertyValue(property, frame) {
-            const keyframes = editorKeyframes[property];
+            const segments = editorKeyframes[property];
 
-            if (keyframes.length === 0) {
-                // Return default values if no keyframes
+            if (segments.length === 0) {
+                // Return default values if no segments
                 const defaults = { brightness: 50, rotation: 180, tilt: 0 };
                 return defaults[property];
             }
 
-            // Find the keyframes that surround this frame
-            let beforeKeyframe = null;
-            let afterKeyframe = null;
+            // Find the segment that contains this frame
+            for (let i = 0; i < segments.length; i++) {
+                const segment = segments[i];
 
-            for (let i = 0; i < keyframes.length; i++) {
-                if (keyframes[i].frame <= frame) {
-                    beforeKeyframe = keyframes[i];
+                // Check if frame is within this segment
+                if (frame >= segment.startFrame && frame <= segment.endFrame) {
+                    // If frame exactly matches start frame
+                    if (frame === segment.startFrame) {
+                        return segment.startValue;
+                    }
+
+                    // If frame exactly matches end frame
+                    if (frame === segment.endFrame) {
+                        return segment.endValue;
+                    }
+
+                    // Interpolate within the segment
+                    const totalFrames = segment.endFrame - segment.startFrame;
+                    const currentProgress = frame - segment.startFrame;
+                    let t = currentProgress / totalFrames;
+
+                    // Apply easing curve
+                    if (segment.easing && segment.easing.length === 4) {
+                        t = cubicBezier(t, segment.easing[0], segment.easing[1],
+                                           segment.easing[2], segment.easing[3]);
+                    }
+
+                    // Linear interpolation with easing
+                    return segment.startValue + (segment.endValue - segment.startValue) * t;
                 }
-                if (keyframes[i].frame >= frame && afterKeyframe === null) {
-                    afterKeyframe = keyframes[i];
-                }
             }
 
-            // If frame is before all keyframes
-            if (beforeKeyframe === null) {
-                return keyframes[0].value;
+            // If frame is before all segments, return the start value of the first segment
+            if (frame < segments[0].startFrame) {
+                return segments[0].startValue;
             }
 
-            // If frame is after all keyframes
-            if (afterKeyframe === null) {
-                return beforeKeyframe.value;
-            }
-
-            // If frame exactly matches a keyframe
-            if (beforeKeyframe.frame === frame) {
-                return beforeKeyframe.value;
-            }
-
-            // Interpolate between keyframes
-            const totalFrames = afterKeyframe.frame - beforeKeyframe.frame;
-            const currentProgress = frame - beforeKeyframe.frame;
-            let t = currentProgress / totalFrames;
-
-            // Apply easing curve
-            if (beforeKeyframe.easing && beforeKeyframe.easing.length === 4) {
-                t = cubicBezier(t, beforeKeyframe.easing[0], beforeKeyframe.easing[1],
-                                   beforeKeyframe.easing[2], beforeKeyframe.easing[3]);
-            }
-
-            // Linear interpolation with easing
-            return beforeKeyframe.value + (afterKeyframe.value - beforeKeyframe.value) * t;
+            // If frame is after all segments, return the end value of the last segment
+            return segments[segments.length - 1].endValue;
         }
 
         function cubicBezier(t, p1x, p1y, p2x, p2y) {
@@ -1787,15 +2044,16 @@
         function jumpToPreviousKeyframe() {
             pauseEditorAnimation();
 
-            // Collect all keyframes and sort by frame
-            const allKeyframes = [];
+            // Collect all segment frames and sort by frame
+            const allFrames = [];
             Object.keys(editorKeyframes).forEach(property => {
-                editorKeyframes[property].forEach(kf => {
-                    allKeyframes.push(kf.frame);
+                editorKeyframes[property].forEach(segment => {
+                    allFrames.push(segment.startFrame);
+                    allFrames.push(segment.endFrame);
                 });
             });
 
-            const uniqueFrames = [...new Set(allKeyframes)].sort((a, b) => a - b);
+            const uniqueFrames = [...new Set(allFrames)].sort((a, b) => a - b);
             const currentIndex = uniqueFrames.findIndex(frame => frame >= editorCurrentFrame);
 
             if (currentIndex > 0) {
@@ -1810,15 +2068,16 @@
         function jumpToNextKeyframe() {
             pauseEditorAnimation();
 
-            // Collect all keyframes and sort by frame
-            const allKeyframes = [];
+            // Collect all segment frames and sort by frame
+            const allFrames = [];
             Object.keys(editorKeyframes).forEach(property => {
-                editorKeyframes[property].forEach(kf => {
-                    allKeyframes.push(kf.frame);
+                editorKeyframes[property].forEach(segment => {
+                    allFrames.push(segment.startFrame);
+                    allFrames.push(segment.endFrame);
                 });
             });
 
-            const uniqueFrames = [...new Set(allKeyframes)].sort((a, b) => a - b);
+            const uniqueFrames = [...new Set(allFrames)].sort((a, b) => a - b);
             const nextFrame = uniqueFrames.find(frame => frame > editorCurrentFrame);
 
             if (nextFrame !== undefined) {
