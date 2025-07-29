@@ -443,6 +443,26 @@
             background: rgba(0, 188, 212, 0.03);
         }
 
+        .keyframe.snap-highlight {
+            border: 2px solid #ffeb3b;
+            box-shadow: 0 4px 20px rgba(255, 235, 59, 0.8);
+            animation: snapPulse 0.5s ease-in-out;
+        }
+
+        @keyframes snapPulse {
+            0% { transform: translateY(-50%) scale(1); }
+            50% { transform: translateY(-50%) scale(1.05); }
+            100% { transform: translateY(-50%) scale(1); }
+        }
+
+        .keyframe.connected-start {
+            border-left: 3px solid #4caf50;
+        }
+
+        .keyframe.connected-end {
+            border-right: 3px solid #4caf50;
+        }
+
         .keyframe-handle:active {
             cursor: grabbing;
         }
@@ -1346,6 +1366,17 @@
                     keyframeEl.dataset.startValue = segment.startValue;
                     keyframeEl.dataset.endValue = segment.endValue;
 
+                    // Check for connections with other segments
+                    const isConnectedStart = segments.some(other => other !== segment && other.endFrame === segment.startFrame);
+                    const isConnectedEnd = segments.some(other => other !== segment && other.startFrame === segment.endFrame);
+
+                    if (isConnectedStart) {
+                        keyframeEl.classList.add('connected-start');
+                    }
+                    if (isConnectedEnd) {
+                        keyframeEl.classList.add('connected-end');
+                    }
+
                     // Add handles at start and end of the line
                     const startHandle = document.createElement('div');
                     startHandle.className = 'keyframe-handle';
@@ -1413,9 +1444,32 @@
 
             editorCurrentFrame = frame;
             updatePlayhead();
+                }
+
+        function getConnectedSegmentValues(segments, startFrame, endFrame, defaultValue) {
+            let startValue = defaultValue;
+            let endValue = defaultValue;
+
+            // Check if start frame connects to end of another segment
+            for (const segment of segments) {
+                if (segment.endFrame === startFrame) {
+                    startValue = segment.endValue;
+                    break;
+                }
+            }
+
+            // Check if end frame connects to start of another segment
+            for (const segment of segments) {
+                if (segment.startFrame === endFrame) {
+                    endValue = segment.startValue;
+                    break;
+                }
+            }
+
+            return { startValue, endValue };
         }
 
-                                        function addKeyframeAtFrame(property, frame) {
+        function addKeyframeAtFrame(property, frame) {
             const defaultValues = {
                 brightness: 50,
                 rotation: 180,
@@ -1470,12 +1524,20 @@
                 return;
             }
 
-            // Create a new segment with validated frames
+            // Apply snapping to connect with adjacent segments
+            const snappedFrames = snapToAdjacentSegments(segments, -1, frame, endFrame);
+            frame = snappedFrames.startFrame;
+            endFrame = snappedFrames.endFrame;
+
+            // Get appropriate start and end values for connected segments
+            const segmentValues = getConnectedSegmentValues(segments, frame, endFrame, defaultValues[property]);
+
+            // Create a new segment with validated frames and connected values
             const newSegment = {
                 startFrame: frame,
                 endFrame: endFrame,
-                startValue: defaultValues[property],
-                endValue: defaultValues[property],
+                startValue: segmentValues.startValue,
+                endValue: segmentValues.endValue,
                 easing: [0.42, 0.0, 0.58, 1.0]
             };
 
@@ -1484,6 +1546,13 @@
 
             // Sort segments by start frame to maintain chronological order
             segments.sort((a, b) => a.startFrame - b.startFrame);
+
+            // Apply value connections for adjacent segments
+            const newIndex = segments.findIndex(s => s === newSegment);
+            connectAdjacentSegmentValues(segments, newIndex);
+
+            // Enforce exact alignment for close segments
+            enforceExactAlignment(segments);
 
             renderKeyframes();
 
@@ -1683,6 +1752,111 @@
             return true;
         }
 
+        function snapToAdjacentSegments(segments, currentIndex, startFrame, endFrame) {
+            const SNAP_THRESHOLD = 8; // Increased threshold for easier snapping
+            let snappedStart = startFrame;
+            let snappedEnd = endFrame;
+
+            // Find the closest snap points for start and end frames
+            let bestStartSnap = null;
+            let bestEndSnap = null;
+            let bestStartDistance = SNAP_THRESHOLD + 1;
+            let bestEndDistance = SNAP_THRESHOLD + 1;
+
+            // Check all other segments for snapping opportunities
+            for (let i = 0; i < segments.length; i++) {
+                if (i === currentIndex) continue;
+
+                const otherSegment = segments[i];
+
+                // Check start frame snapping opportunities
+                const startToEnd = Math.abs(startFrame - otherSegment.endFrame);
+                const startToStart = Math.abs(startFrame - otherSegment.startFrame);
+
+                if (startToEnd <= SNAP_THRESHOLD && startToEnd < bestStartDistance) {
+                    bestStartSnap = otherSegment.endFrame;
+                    bestStartDistance = startToEnd;
+                }
+
+                if (startToStart <= SNAP_THRESHOLD && startToStart < bestStartDistance) {
+                    bestStartSnap = otherSegment.startFrame;
+                    bestStartDistance = startToStart;
+                }
+
+                // Check end frame snapping opportunities
+                const endToStart = Math.abs(endFrame - otherSegment.startFrame);
+                const endToEnd = Math.abs(endFrame - otherSegment.endFrame);
+
+                if (endToStart <= SNAP_THRESHOLD && endToStart < bestEndDistance) {
+                    bestEndSnap = otherSegment.startFrame;
+                    bestEndDistance = endToStart;
+                }
+
+                if (endToEnd <= SNAP_THRESHOLD && endToEnd < bestEndDistance) {
+                    bestEndSnap = otherSegment.endFrame;
+                    bestEndDistance = endToEnd;
+                }
+            }
+
+            // Apply the best snaps found
+            if (bestStartSnap !== null) {
+                snappedStart = bestStartSnap;
+            }
+            if (bestEndSnap !== null) {
+                snappedEnd = bestEndSnap;
+            }
+
+            return { startFrame: snappedStart, endFrame: snappedEnd };
+        }
+
+                function connectAdjacentSegmentValues(segments, currentIndex) {
+            const currentSegment = segments[currentIndex];
+
+            // Sort segments by start frame to find adjacent ones
+            const sortedSegments = segments.slice().sort((a, b) => a.startFrame - b.startFrame);
+            const currentSortedIndex = sortedSegments.findIndex(s => s === currentSegment);
+
+            // Connect with previous segment
+            if (currentSortedIndex > 0) {
+                const prevSegment = sortedSegments[currentSortedIndex - 1];
+                if (prevSegment.endFrame === currentSegment.startFrame) {
+                    // Make values match at connection point
+                    currentSegment.startValue = prevSegment.endValue;
+                }
+            }
+
+            // Connect with next segment
+            if (currentSortedIndex < sortedSegments.length - 1) {
+                const nextSegment = sortedSegments[currentSortedIndex + 1];
+                if (currentSegment.endFrame === nextSegment.startFrame) {
+                    // Make values match at connection point
+                    nextSegment.startValue = currentSegment.endValue;
+                }
+            }
+        }
+
+        function enforceExactAlignment(segments) {
+            // Sort segments by start frame
+            const sortedSegments = segments.slice().sort((a, b) => a.startFrame - b.startFrame);
+
+            // Force exact frame alignment for segments that should be connected
+            for (let i = 0; i < sortedSegments.length - 1; i++) {
+                const currentSegment = sortedSegments[i];
+                const nextSegment = sortedSegments[i + 1];
+
+                // If segments are very close (within 2 frames), force them to connect exactly
+                if (Math.abs(currentSegment.endFrame - nextSegment.startFrame) <= 2) {
+                    // Choose the midpoint for exact alignment
+                    const midFrame = Math.round((currentSegment.endFrame + nextSegment.startFrame) / 2);
+                    currentSegment.endFrame = midFrame;
+                    nextSegment.startFrame = midFrame;
+
+                    // Also align values at connection point
+                    nextSegment.startValue = currentSegment.endValue;
+                }
+            }
+        }
+
         function updateKeyframeProperty() {
             if (!selectedKeyframe) return;
 
@@ -1696,8 +1870,13 @@
             const easingInput = document.getElementById('keyframeEasing');
 
             // Get proposed new values
-            const newStartFrame = startFrameInput ? parseInt(startFrameInput.value) : segment.startFrame;
-            const newEndFrame = endFrameInput ? parseInt(endFrameInput.value) : segment.endFrame;
+            let newStartFrame = startFrameInput ? parseInt(startFrameInput.value) : segment.startFrame;
+            let newEndFrame = endFrameInput ? parseInt(endFrameInput.value) : segment.endFrame;
+
+            // Apply snapping to connect adjacent segments
+            const snappedFrames = snapToAdjacentSegments(segments, selectedKeyframe.index, newStartFrame, newEndFrame);
+            newStartFrame = snappedFrames.startFrame;
+            newEndFrame = snappedFrames.endFrame;
 
             // Validate that the segment doesn't overlap with others
             if (!isSegmentValid(segments, selectedKeyframe.index, newStartFrame, newEndFrame)) {
@@ -1708,9 +1887,15 @@
                 return;
             }
 
-            // Update the segment with validated values
-            if (startFrameInput) segment.startFrame = newStartFrame;
-            if (endFrameInput) segment.endFrame = newEndFrame;
+            // Update the segment with validated and snapped values
+            if (startFrameInput) {
+                segment.startFrame = newStartFrame;
+                startFrameInput.value = newStartFrame; // Update UI to show snapped value
+            }
+            if (endFrameInput) {
+                segment.endFrame = newEndFrame;
+                endFrameInput.value = newEndFrame; // Update UI to show snapped value
+            }
             if (startValueInput) segment.startValue = parseFloat(startValueInput.value);
             if (endValueInput) segment.endValue = parseFloat(endValueInput.value);
 
@@ -1720,6 +1905,12 @@
                     segment.easing = easingValues;
                 }
             }
+
+            // Apply automatic value matching for connected segments
+            connectAdjacentSegmentValues(segments, selectedKeyframe.index);
+
+            // Enforce exact alignment for close segments
+            enforceExactAlignment(segments);
 
             // Re-sort segments by start frame to maintain chronological order
             editorKeyframes[selectedKeyframe.property].sort((a, b) => a.startFrame - b.startFrame);
@@ -1937,6 +2128,12 @@
                     }
                 ]
             };
+
+            // Enforce alignment for all properties
+            Object.keys(editorKeyframes).forEach(property => {
+                enforceExactAlignment(editorKeyframes[property]);
+            });
+
             renderKeyframes();
             updateCurrentFrameValues();
         }
@@ -1998,6 +2195,11 @@
                 } else {
                     console.log(`No keyframes found for ${property}`);
                 }
+            });
+
+            // Enforce alignment for all loaded properties
+            Object.keys(editorKeyframes).forEach(property => {
+                enforceExactAlignment(editorKeyframes[property]);
             });
 
             // Mark that we've loaded from parent
@@ -2101,9 +2303,12 @@
                 return defaults[property];
             }
 
+            // Sort segments by start frame to ensure proper order
+            const sortedSegments = segments.slice().sort((a, b) => a.startFrame - b.startFrame);
+
             // Find the segment that contains this frame
-            for (let i = 0; i < segments.length; i++) {
-                const segment = segments[i];
+            for (let i = 0; i < sortedSegments.length; i++) {
+                const segment = sortedSegments[i];
 
                 // Check if frame is within this segment
                 if (frame >= segment.startFrame && frame <= segment.endFrame) {
@@ -2134,12 +2339,43 @@
             }
 
             // If frame is before all segments, return the start value of the first segment
-            if (frame < segments[0].startFrame) {
-                return segments[0].startValue;
+            if (frame < sortedSegments[0].startFrame) {
+                return sortedSegments[0].startValue;
             }
 
             // If frame is after all segments, return the end value of the last segment
-            return segments[segments.length - 1].endValue;
+            if (frame > sortedSegments[sortedSegments.length - 1].endFrame) {
+                return sortedSegments[sortedSegments.length - 1].endValue;
+            }
+
+            // Handle gaps between segments - hold the last value
+            // Find the last segment that ended before or at this frame
+            let lastCompletedSegment = null;
+            for (let i = 0; i < sortedSegments.length; i++) {
+                const segment = sortedSegments[i];
+                if (segment.endFrame < frame) {
+                    lastCompletedSegment = segment;
+                } else {
+                    break; // We've reached a segment that starts after our frame
+                }
+            }
+
+            if (lastCompletedSegment) {
+                // Hold the end value of the last completed segment
+                return lastCompletedSegment.endValue;
+            }
+
+            // Fallback - if no previous segment found, return start value of next segment
+            for (let i = 0; i < sortedSegments.length; i++) {
+                const segment = sortedSegments[i];
+                if (segment.startFrame > frame) {
+                    return segment.startValue;
+                }
+            }
+
+            // Final fallback to default values
+            const defaults = { brightness: 50, rotation: 180, tilt: 0 };
+            return defaults[property];
         }
 
         function cubicBezier(t, p1x, p1y, p2x, p2y) {
