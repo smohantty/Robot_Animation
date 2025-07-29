@@ -272,6 +272,17 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             min-height: 60px;
             display: flex;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .property-track:hover {
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+
+        .property-track.hover-highlight {
+            background-color: rgba(0, 188, 212, 0.08);
+            border-left: 3px solid #00bcd4;
         }
 
         .track-label {
@@ -410,6 +421,26 @@
         .keyframe.selected .keyframe-handle:hover {
             background: #ffe0b2;
             box-shadow: 0 4px 12px rgba(255, 152, 0, 0.6);
+        }
+
+        .keyframe.hover-highlight {
+            background: linear-gradient(90deg, #4dd0e1, #26c6da);
+            border-color: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 4px 16px rgba(77, 208, 225, 0.6);
+            height: 8px;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+                .keyframe.hover-highlight::before {
+            background: linear-gradient(90deg,
+                rgba(255, 255, 255, 0.3) 0%,
+                rgba(255, 255, 255, 0.2) 50%,
+                rgba(255, 255, 255, 0.3) 100%);
+            opacity: 1;
+        }
+
+        .track-timeline:hover {
+            background: rgba(0, 188, 212, 0.03);
         }
 
         .keyframe-handle:active {
@@ -1093,10 +1124,7 @@
             editorStartFrame.addEventListener('change', updateTimelineConfig);
             editorEndFrame.addEventListener('change', updateTimelineConfig);
 
-            // Timeline interaction listeners
-            brightnessTrack.addEventListener('click', (e) => handleTrackClick(e, 'brightness'));
-            rotationTrack.addEventListener('click', (e) => handleTrackClick(e, 'rotation'));
-            tiltTrack.addEventListener('click', (e) => handleTrackClick(e, 'tilt'));
+            // Timeline interaction listeners are now handled by setupPropertyTrackHover()
 
             // Timeline ruler click for scrubbing
             timelineRuler.addEventListener('click', handleRulerClick);
@@ -1117,6 +1145,95 @@
 
             // Keyboard shortcuts for editor
             document.addEventListener('keydown', handleEditorKeydown);
+
+            // Property track hover effects
+            setupPropertyTrackHover();
+        }
+
+                function setupPropertyTrackHover() {
+            const propertyTracks = document.querySelectorAll('.property-track');
+
+            propertyTracks.forEach(track => {
+                const property = track.dataset.property;
+                const timeline = track.querySelector('.track-timeline');
+
+                // Add hover effects to highlight specific segment under mouse
+                timeline.addEventListener('mousemove', (e) => {
+                    const rect = timeline.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const startFrame = parseInt(editorStartFrame.value);
+                    const hoverFrame = Math.round(startFrame + (x / pixelsPerFrame));
+
+                    // Clear all previous hover highlights for this property
+                    clearPropertyHoverHighlights(property);
+
+                    // Find segment under mouse and highlight it
+                    const hoveredSegment = findSegmentAtFrame(property, hoverFrame);
+                    if (hoveredSegment) {
+                        highlightSpecificSegment(property, hoveredSegment.index, true);
+                        track.classList.add('hover-highlight');
+                    } else {
+                        track.classList.remove('hover-highlight');
+                    }
+                });
+
+                timeline.addEventListener('mouseleave', () => {
+                    clearPropertyHoverHighlights(property);
+                    track.classList.remove('hover-highlight');
+                });
+
+                // Add click handler for segment selection or creation
+                timeline.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('keyframe') || e.target.classList.contains('keyframe-handle')) {
+                        return; // Let existing keyframe handlers deal with it
+                    }
+
+                    const rect = timeline.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const startFrame = parseInt(editorStartFrame.value);
+                    const clickFrame = Math.round(startFrame + (x / pixelsPerFrame));
+
+                    // Check if there's a segment at this frame
+                    const existingSegment = findSegmentAtFrame(property, clickFrame);
+
+                    if (existingSegment) {
+                        // Select the existing segment
+                        selectKeyframe(property, existingSegment.index);
+                    } else {
+                        // Add new segment at this position
+                        addKeyframeAtFrame(property, clickFrame);
+                    }
+                });
+            });
+        }
+
+        function highlightSpecificSegment(property, segmentIndex, highlight) {
+            const keyframe = document.querySelector(`[data-property="${property}"][data-index="${segmentIndex}"].keyframe`);
+            if (keyframe) {
+                if (highlight) {
+                    keyframe.classList.add('hover-highlight');
+                } else {
+                    keyframe.classList.remove('hover-highlight');
+                }
+            }
+        }
+
+        function clearPropertyHoverHighlights(property) {
+            const keyframes = document.querySelectorAll(`[data-property="${property}"].keyframe`);
+            keyframes.forEach(keyframe => {
+                keyframe.classList.remove('hover-highlight');
+            });
+        }
+
+        function findSegmentAtFrame(property, frame) {
+            const segments = editorKeyframes[property];
+            for (let i = 0; i < segments.length; i++) {
+                const segment = segments[i];
+                if (frame >= segment.startFrame && frame <= segment.endFrame) {
+                    return { segment, index: i };
+                }
+            }
+            return null;
         }
 
         function initializeTimeline() {
