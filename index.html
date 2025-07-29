@@ -3206,55 +3206,138 @@
         }
 
         function interpolatePropertyValue(property, frame) {
-            const keyframes = editorKeyframes[property];
+            const segments = editorKeyframes[property];
 
-            if (keyframes.length === 0) {
-                // Return default values if no keyframes
+            if (!segments || segments.length === 0) {
+                // Return default values if no segments
                 const defaults = { brightness: 50, rotation: 180, tilt: 0 };
                 return defaults[property];
             }
 
-            // Find the keyframes that surround this frame
-            let beforeKeyframe = null;
-            let afterKeyframe = null;
+            // Check if we're dealing with the new segment format or old keyframe format
+            const isSegmentFormat = segments[0] && segments[0].hasOwnProperty('startFrame');
 
-            for (let i = 0; i < keyframes.length; i++) {
-                if (keyframes[i].frame <= frame) {
-                    beforeKeyframe = keyframes[i];
+            if (isSegmentFormat) {
+                // New segment-based format - sort segments by start frame
+                const sortedSegments = segments.slice().sort((a, b) => a.startFrame - b.startFrame);
+
+                // Find the segment that contains this frame
+                for (let i = 0; i < sortedSegments.length; i++) {
+                    const segment = sortedSegments[i];
+
+                    // Check if frame is within this segment
+                    if (frame >= segment.startFrame && frame <= segment.endFrame) {
+                        // If frame exactly matches start frame
+                        if (frame === segment.startFrame) {
+                            return segment.startValue;
+                        }
+
+                        // If frame exactly matches end frame
+                        if (frame === segment.endFrame) {
+                            return segment.endValue;
+                        }
+
+                        // Interpolate within the segment
+                        const totalFrames = segment.endFrame - segment.startFrame;
+                        const currentProgress = frame - segment.startFrame;
+                        let t = currentProgress / totalFrames;
+
+                        // Apply easing curve
+                        if (segment.easing && segment.easing.length === 4) {
+                            t = cubicBezier(t, segment.easing[0], segment.easing[1],
+                                               segment.easing[2], segment.easing[3]);
+                        }
+
+                        // Linear interpolation with easing
+                        return segment.startValue + (segment.endValue - segment.startValue) * t;
+                    }
                 }
-                if (keyframes[i].frame >= frame && afterKeyframe === null) {
-                    afterKeyframe = keyframes[i];
+
+                // If frame is before all segments, return the start value of the first segment
+                if (frame < sortedSegments[0].startFrame) {
+                    return sortedSegments[0].startValue;
                 }
+
+                // If frame is after all segments, return the end value of the last segment
+                if (frame > sortedSegments[sortedSegments.length - 1].endFrame) {
+                    return sortedSegments[sortedSegments.length - 1].endValue;
+                }
+
+                // Handle gaps between segments - hold the last value
+                // Find the last segment that ended before or at this frame
+                let lastCompletedSegment = null;
+                for (let i = 0; i < sortedSegments.length; i++) {
+                    const segment = sortedSegments[i];
+                    if (segment.endFrame < frame) {
+                        lastCompletedSegment = segment;
+                    } else {
+                        break; // We've reached a segment that starts after our frame
+                    }
+                }
+
+                if (lastCompletedSegment) {
+                    // Hold the end value of the last completed segment
+                    return lastCompletedSegment.endValue;
+                }
+
+                // Fallback - if no previous segment found, return start value of next segment
+                for (let i = 0; i < sortedSegments.length; i++) {
+                    const segment = sortedSegments[i];
+                    if (segment.startFrame > frame) {
+                        return segment.startValue;
+                    }
+                }
+
+                // Final fallback to default values
+                const defaults = { brightness: 50, rotation: 180, tilt: 0 };
+                return defaults[property];
+
+            } else {
+                // Old keyframe format - maintain backward compatibility
+                const keyframes = segments; // segments is actually keyframes in old format
+
+                // Find the keyframes that surround this frame
+                let beforeKeyframe = null;
+                let afterKeyframe = null;
+
+                for (let i = 0; i < keyframes.length; i++) {
+                    if (keyframes[i].frame <= frame) {
+                        beforeKeyframe = keyframes[i];
+                    }
+                    if (keyframes[i].frame >= frame && afterKeyframe === null) {
+                        afterKeyframe = keyframes[i];
+                    }
+                }
+
+                // If frame is before all keyframes, hold the first keyframe value
+                if (beforeKeyframe === null) {
+                    return keyframes[0].value;
+                }
+
+                // If frame is after all keyframes, hold the last keyframe value
+                if (afterKeyframe === null) {
+                    return beforeKeyframe.value;
+                }
+
+                // If frame exactly matches a keyframe
+                if (beforeKeyframe.frame === frame) {
+                    return beforeKeyframe.value;
+                }
+
+                // Interpolate between keyframes
+                const totalFrames = afterKeyframe.frame - beforeKeyframe.frame;
+                const currentProgress = frame - beforeKeyframe.frame;
+                let t = currentProgress / totalFrames;
+
+                // Apply easing curve
+                if (beforeKeyframe.easing && beforeKeyframe.easing.length === 4) {
+                    t = cubicBezier(t, beforeKeyframe.easing[0], beforeKeyframe.easing[1],
+                                       beforeKeyframe.easing[2], beforeKeyframe.easing[3]);
+                }
+
+                // Linear interpolation with easing
+                return beforeKeyframe.value + (afterKeyframe.value - beforeKeyframe.value) * t;
             }
-
-            // If frame is before all keyframes
-            if (beforeKeyframe === null) {
-                return keyframes[0].value;
-            }
-
-            // If frame is after all keyframes
-            if (afterKeyframe === null) {
-                return beforeKeyframe.value;
-            }
-
-            // If frame exactly matches a keyframe
-            if (beforeKeyframe.frame === frame) {
-                return beforeKeyframe.value;
-            }
-
-            // Interpolate between keyframes
-            const totalFrames = afterKeyframe.frame - beforeKeyframe.frame;
-            const currentProgress = frame - beforeKeyframe.frame;
-            let t = currentProgress / totalFrames;
-
-            // Apply easing curve
-            if (beforeKeyframe.easing && beforeKeyframe.easing.length === 4) {
-                t = cubicBezier(t, beforeKeyframe.easing[0], beforeKeyframe.easing[1],
-                                   beforeKeyframe.easing[2], beforeKeyframe.easing[3]);
-            }
-
-            // Linear interpolation with easing
-            return beforeKeyframe.value + (afterKeyframe.value - beforeKeyframe.value) * t;
         }
 
         function startDragPlayhead(event) {
@@ -3802,8 +3885,12 @@
                 return 0;
             }
 
-            for (let i = 0; i < property.keyframe.length; i++) {
-                const keyframe = property.keyframe[i];
+            // Sort keyframes by start frame to ensure proper order
+            const sortedKeyframes = property.keyframe.slice().sort((a, b) => a.from_frame - b.from_frame);
+
+            // Check if frame is within any segment
+            for (let i = 0; i < sortedKeyframes.length; i++) {
+                const keyframe = sortedKeyframes[i];
                 if (frame >= keyframe.from_frame && frame <= keyframe.to_frame) {
                     const segmentLength = keyframe.to_frame - keyframe.from_frame;
                     const frameProgress = frame - keyframe.from_frame;
@@ -3817,8 +3904,43 @@
                 }
             }
 
-            const lastKeyframe = property.keyframe[property.keyframe.length - 1];
-            return lastKeyframe.to_value;
+            // If frame is before all segments, return the start value of the first segment
+            if (frame < sortedKeyframes[0].from_frame) {
+                return sortedKeyframes[0].from_value;
+            }
+
+            // If frame is after all segments, return the end value of the last segment
+            if (frame > sortedKeyframes[sortedKeyframes.length - 1].to_frame) {
+                return sortedKeyframes[sortedKeyframes.length - 1].to_value;
+            }
+
+            // Handle gaps between segments - hold the last value
+            // Find the last segment that ended before or at this frame
+            let lastCompletedKeyframe = null;
+            for (let i = 0; i < sortedKeyframes.length; i++) {
+                const keyframe = sortedKeyframes[i];
+                if (keyframe.to_frame < frame) {
+                    lastCompletedKeyframe = keyframe;
+                } else {
+                    break; // We've reached a segment that starts after our frame
+                }
+            }
+
+            if (lastCompletedKeyframe) {
+                // Hold the end value of the last completed segment
+                return lastCompletedKeyframe.to_value;
+            }
+
+            // Fallback - if no previous segment found, return start value of next segment
+            for (let i = 0; i < sortedKeyframes.length; i++) {
+                const keyframe = sortedKeyframes[i];
+                if (keyframe.from_frame > frame) {
+                    return keyframe.from_value;
+                }
+            }
+
+            // Final fallback - return the end value of the last segment
+            return sortedKeyframes[sortedKeyframes.length - 1].to_value;
         }
 
         function cubicBezier(t, p1x, p1y, p2x, p2y) {
