@@ -1009,9 +1009,17 @@
                     if (event.data && event.data.type === 'loadCurrentAnimation') {
                         if (event.data.animation) {
                             loadAnimationFromParent(event.data.animation);
+                        } else {
+                            // No animation data from parent, load defaults
+                            loadDefaultKeyframes();
                         }
                     }
                 });
+
+                // Request current animation from parent
+                window.parent.postMessage({
+                    type: 'requestCurrentAnimation'
+                }, '*');
             }
 
             editorCurrentFrame = parseInt(editorStartFrame.value);
@@ -1021,9 +1029,10 @@
             if (window.parent !== window) {
                 setTimeout(() => {
                     if (!hasLoadedFromParent) {
+                        console.log('No animation received from parent, loading defaults');
                         loadDefaultKeyframes();
                     }
-                }, 100);
+                }, 500); // Increased timeout to give parent more time to respond
             } else {
                 // Standalone mode - load defaults immediately
                 loadDefaultKeyframes();
@@ -1260,7 +1269,7 @@
             updatePlayhead();
         }
 
-                                function addKeyframeAtFrame(property, frame) {
+                                        function addKeyframeAtFrame(property, frame) {
             const defaultValues = {
                 brightness: 50,
                 rotation: 180,
@@ -1269,10 +1278,56 @@
 
             const segments = editorKeyframes[property];
 
-            // Create a new segment starting at the specified frame
+            // Find a suitable end frame that doesn't overlap with existing segments
+            let endFrame = frame + 30; // Default 30 frame duration
+
+            // Check if the proposed segment would overlap with existing ones
+            let foundValidEnd = false;
+            for (let duration = 30; duration >= 5; duration -= 5) {
+                const proposedEnd = frame + duration;
+                if (isSegmentValid(segments, -1, frame, proposedEnd)) {
+                    endFrame = proposedEnd;
+                    foundValidEnd = true;
+                    break;
+                }
+            }
+
+            // If we can't find a valid end frame, try to find a gap
+            if (!foundValidEnd) {
+                // Look for the next available start frame after the clicked frame
+                const sortedSegments = [...segments].sort((a, b) => a.startFrame - b.startFrame);
+                let nextAvailableFrame = frame;
+
+                for (const segment of sortedSegments) {
+                    if (nextAvailableFrame < segment.startFrame) {
+                        // Found a gap before this segment
+                        endFrame = Math.min(nextAvailableFrame + 30, segment.startFrame);
+                        if (endFrame > nextAvailableFrame) {
+                            frame = nextAvailableFrame;
+                            foundValidEnd = true;
+                            break;
+                        }
+                    }
+                    nextAvailableFrame = Math.max(nextAvailableFrame, segment.endFrame);
+                }
+
+                // If still no valid position, place after the last segment
+                if (!foundValidEnd && sortedSegments.length > 0) {
+                    frame = sortedSegments[sortedSegments.length - 1].endFrame;
+                    endFrame = frame + 30;
+                    foundValidEnd = true;
+                }
+            }
+
+            if (!foundValidEnd) {
+                alert('Cannot add segment here - no space available without overlapping!');
+                return;
+            }
+
+            // Create a new segment with validated frames
             const newSegment = {
                 startFrame: frame,
-                endFrame: frame + 30, // Default 30 frame duration
+                endFrame: endFrame,
                 startValue: defaultValues[property],
                 endValue: defaultValues[property],
                 easing: [0.42, 0.0, 0.58, 1.0]
@@ -1455,7 +1510,34 @@
             addCustomEasingPreview();
         }
 
-                                                        function updateKeyframeProperty() {
+                                                                function isSegmentValid(segments, currentIndex, startFrame, endFrame) {
+            // Ensure start frame is before end frame
+            if (startFrame >= endFrame) {
+                return false;
+            }
+
+            // Check for overlaps with other segments
+            for (let i = 0; i < segments.length; i++) {
+                if (i === currentIndex) continue; // Skip current segment
+
+                const otherSegment = segments[i];
+
+                // Check if segments overlap (not just touching)
+                const hasOverlap = (
+                    (startFrame > otherSegment.startFrame && startFrame < otherSegment.endFrame) ||
+                    (endFrame > otherSegment.startFrame && endFrame < otherSegment.endFrame) ||
+                    (startFrame <= otherSegment.startFrame && endFrame >= otherSegment.endFrame)
+                );
+
+                if (hasOverlap) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        function updateKeyframeProperty() {
             if (!selectedKeyframe) return;
 
             const segments = editorKeyframes[selectedKeyframe.property];
@@ -1467,9 +1549,22 @@
             const endValueInput = document.getElementById('keyframeEndValue');
             const easingInput = document.getElementById('keyframeEasing');
 
-            // Update the independent segment - no cross-contamination possible
-            if (startFrameInput) segment.startFrame = parseInt(startFrameInput.value);
-            if (endFrameInput) segment.endFrame = parseInt(endFrameInput.value);
+            // Get proposed new values
+            const newStartFrame = startFrameInput ? parseInt(startFrameInput.value) : segment.startFrame;
+            const newEndFrame = endFrameInput ? parseInt(endFrameInput.value) : segment.endFrame;
+
+            // Validate that the segment doesn't overlap with others
+            if (!isSegmentValid(segments, selectedKeyframe.index, newStartFrame, newEndFrame)) {
+                // Reset to current values if invalid
+                if (startFrameInput) startFrameInput.value = segment.startFrame;
+                if (endFrameInput) endFrameInput.value = segment.endFrame;
+                alert('Segments cannot overlap! They can only touch at start/end frames.');
+                return;
+            }
+
+            // Update the segment with validated values
+            if (startFrameInput) segment.startFrame = newStartFrame;
+            if (endFrameInput) segment.endFrame = newEndFrame;
             if (startValueInput) segment.startValue = parseFloat(startValueInput.value);
             if (endValueInput) segment.endValue = parseFloat(endValueInput.value);
 
@@ -1651,8 +1746,8 @@
             });
         }
 
-        function loadDefaultKeyframes() {
-            // Load some default keyframes as independent segments
+                function loadDefaultKeyframes() {
+            // Load some default keyframes as independent, non-overlapping segments
             editorKeyframes = {
                 brightness: [
                     {
@@ -1717,7 +1812,7 @@
                 editorLoop.checked = animationData.loop;
             }
 
-            // Convert animation properties to editor keyframes format
+            // Convert animation properties to editor segment format
             editorKeyframes = {
                 brightness: [],
                 rotation: [],
@@ -1725,52 +1820,35 @@
             };
 
             // Handle both formats:
-            // 1. New format: animationData.properties[property] = array of keyframes
+            // 1. New format: animationData.properties[property] = array of segments
             // 2. Original format: animationData[property].keyframe = array of ranges
 
-                        Object.keys(editorKeyframes).forEach(property => {
+            Object.keys(editorKeyframes).forEach(property => {
                 if (animationData.properties && animationData.properties[property]) {
-                    // New format - direct keyframes
+                    // New format - direct segments
                     console.log(`Loading ${property} from new format:`, animationData.properties[property]);
-                    const keyframes = animationData.properties[property];
-                    editorKeyframes[property] = keyframes.map(kf => ({
-                        frame: kf.frame,
-                        value: kf.value,
-                        easing: kf.easing || [0.42, 0.0, 0.58, 1.0]
+                    const segments = animationData.properties[property];
+                    editorKeyframes[property] = segments.map(segment => ({
+                        startFrame: segment.startFrame,
+                        endFrame: segment.endFrame,
+                        startValue: segment.startValue,
+                        endValue: segment.endValue,
+                        easing: segment.easing || [0.42, 0.0, 0.58, 1.0]
                     }));
                 } else if (animationData[property] && animationData[property].keyframe) {
-                    // Original format - convert from ranges to keyframes
+                    // Original format - convert from ranges to segments
                     console.log(`Loading ${property} from original format:`, animationData[property].keyframe);
                     const ranges = animationData[property].keyframe;
-                    const keyframes = [];
 
-                    ranges.forEach(range => {
-                        // Add start keyframe
-                        keyframes.push({
-                            frame: range.from_frame,
-                            value: range.from_value,
-                            easing: range.bezier || [0.42, 0.0, 0.58, 1.0]
-                        });
+                    editorKeyframes[property] = ranges.map(range => ({
+                        startFrame: range.from_frame,
+                        endFrame: range.to_frame,
+                        startValue: range.from_value,
+                        endValue: range.to_value,
+                        easing: range.bezier || [0.42, 0.0, 0.58, 1.0]
+                    }));
 
-                        // Add end keyframe if it doesn't already exist
-                        const existingEnd = keyframes.find(kf => kf.frame === range.to_frame);
-                        if (!existingEnd) {
-                            keyframes.push({
-                                frame: range.to_frame,
-                                value: range.to_value,
-                                easing: [0.42, 0.0, 0.58, 1.0]
-                            });
-                        }
-                    });
-
-                    // Sort keyframes by frame and remove duplicates
-                    editorKeyframes[property] = keyframes
-                        .sort((a, b) => a.frame - b.frame)
-                        .filter((kf, index, arr) =>
-                            index === 0 || kf.frame !== arr[index - 1].frame
-                        );
-
-                    console.log(`Converted ${property} keyframes:`, editorKeyframes[property]);
+                    console.log(`Converted ${property} segments:`, editorKeyframes[property]);
                 } else {
                     console.log(`No keyframes found for ${property}`);
                 }
@@ -2097,24 +2175,17 @@
                 loop: editorLoop.checked
             };
 
-            // Convert editor keyframes to JSON format
+            // Convert editor segments to JSON format
             Object.keys(editorKeyframes).forEach(property => {
                 if (editorKeyframes[property].length > 0) {
-                    const keyframes = editorKeyframes[property];
-                    const jsonKeyframes = [];
-
-                    for (let i = 0; i < keyframes.length - 1; i++) {
-                        const current = keyframes[i];
-                        const next = keyframes[i + 1];
-
-                        jsonKeyframes.push({
-                            from_frame: current.frame,
-                            to_frame: next.frame,
-                            from_value: current.value,
-                            to_value: next.value,
-                            bezier: current.easing
-                        });
-                    }
+                    const segments = editorKeyframes[property];
+                    const jsonKeyframes = segments.map(segment => ({
+                        from_frame: segment.startFrame,
+                        to_frame: segment.endFrame,
+                        from_value: segment.startValue,
+                        to_value: segment.endValue,
+                        bezier: segment.easing
+                    }));
 
                     animationConfig[property] = {
                         animation: true,
@@ -2149,24 +2220,17 @@
                 loop: editorLoop.checked
             };
 
-            // Convert editor keyframes to JSON format
+            // Convert editor segments to JSON format
             Object.keys(editorKeyframes).forEach(property => {
                 if (editorKeyframes[property].length > 0) {
-                    const keyframes = editorKeyframes[property];
-                    const jsonKeyframes = [];
-
-                    for (let i = 0; i < keyframes.length - 1; i++) {
-                        const current = keyframes[i];
-                        const next = keyframes[i + 1];
-
-                        jsonKeyframes.push({
-                            from_frame: current.frame,
-                            to_frame: next.frame,
-                            from_value: current.value,
-                            to_value: next.value,
-                            bezier: current.easing
-                        });
-                    }
+                    const segments = editorKeyframes[property];
+                    const jsonKeyframes = segments.map(segment => ({
+                        from_frame: segment.startFrame,
+                        to_frame: segment.endFrame,
+                        from_value: segment.startValue,
+                        to_value: segment.endValue,
+                        bezier: segment.easing
+                    }));
 
                     animationConfig[property] = {
                         animation: true,
