@@ -1422,16 +1422,7 @@
             });
         }
 
-        function handleTrackClick(event, property) {
-            if (event.target.classList.contains('keyframe')) return;
 
-            const rect = event.target.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            const startFrame = parseInt(editorStartFrame.value);
-            const frame = Math.round(startFrame + (x / pixelsPerFrame));
-
-            addKeyframeAtFrame(property, frame);
-        }
 
         function handleRulerClick(event) {
             if (event.target.classList.contains('playhead-handle')) return;

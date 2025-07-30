@@ -1659,128 +1659,7 @@
         </div>
     </div>
 
-    <!-- Animation Editor Modal -->
-    <div id="editorModal" class="editor-modal">
-        <div class="editor-content">
-            <div class="editor-header">
-                <h2 class="editor-title">🎬 Animation Editor</h2>
-                <div class="editor-controls">
-                    <button id="editorPlayBtn" class="btn">▶ Play</button>
-                    <button id="editorPauseBtn" class="btn">⏸ Pause</button>
-                    <button id="editorResetBtn" class="btn">⏹ Reset</button>
-                    <button class="editor-close" id="editorCloseBtn">✕ Close</button>
-                </div>
-            </div>
-            <div class="editor-body">
-                <div class="editor-timeline">
-                    <div class="timeline-header">
-                        <div class="timeline-config">
-                            <div class="config-group">
-                                <span class="config-label">Frame Rate:</span>
-                                <input type="number" id="editorFrameRate" class="config-input" value="60" min="1" max="120">
-                            </div>
-                            <div class="config-group">
-                                <span class="config-label">Start:</span>
-                                <input type="number" id="editorStartFrame" class="config-input" value="0" min="0">
-                            </div>
-                            <div class="config-group">
-                                <span class="config-label">End:</span>
-                                <input type="number" id="editorEndFrame" class="config-input" value="200" min="1">
-                            </div>
-                            <div class="config-group">
-                                <label style="display: flex; align-items: center; gap: 6px; color: #a0a0a0; font-size: 12px;">
-                                    <input type="checkbox" id="editorLoop" checked style="margin: 0;">
-                                    Loop
-                                </label>
-                            </div>
-                            <div class="config-group">
-                                <span class="config-label">Zoom:</span>
-                                <span id="zoomLevel" class="config-label" style="color: #64ffda;">5px/frame</span>
-                            </div>
-                            <div class="config-group">
-                                <span class="config-label" style="font-size: 11px; color: #888;" title="Keyboard Shortcuts: Space=Play/Pause, ←/→=Step Frame, Shift+←/→=Jump Keyframes, Home/End=Start/End">⌨️ Shortcuts</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="timeline-ruler" id="timelineRuler">
-                        <div class="ruler-marks" id="rulerMarks"></div>
-                    </div>
-                    <div class="timeline-tracks" id="timelineTracks">
-                        <div class="property-track" data-property="brightness">
-                            <div class="track-label">
-                                <span class="track-name">💡 Brightness</span>
-                                <span class="track-value" id="trackBrightness">50%</span>
-                            </div>
-                            <div class="track-timeline" id="brightnessTrack"></div>
-                        </div>
-                        <div class="property-track" data-property="rotation">
-                            <div class="track-label">
-                                <span class="track-name">🔄 Rotation</span>
-                                <span class="track-value" id="trackRotation">180°</span>
-                            </div>
-                            <div class="track-timeline" id="rotationTrack"></div>
-                        </div>
-                        <div class="property-track" data-property="tilt">
-                            <div class="track-label">
-                                <span class="track-name">↕️ Tilt</span>
-                                <span class="track-value" id="trackTilt">0°</span>
-                            </div>
-                            <div class="track-timeline" id="tiltTrack"></div>
-                        </div>
-                        <div class="playhead" id="playhead" style="left: 120px;">
-                            <div class="playhead-handle" id="playheadHandle"></div>
-                            <div class="playhead-frame-display" id="playheadFrameDisplay">Frame 0</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="editor-sidebar">
-                    <div class="sidebar-header">
-                        <h3 class="sidebar-title">Keyframe Editor</h3>
-                    </div>
-                                        <div class="sidebar-content" id="sidebarContent">
-                        <!-- Keyframe Editor - Shows when keyframe selected -->
-                        <div id="keyframeEditorSection" style="display: none;"></div>
 
-                        <!-- No Selection Message -->
-                        <div id="noKeyframeSelected" style="text-align: center; color: #888; padding: 20px;">
-                            Click on a keyframe or add a new one to edit properties
-                        </div>
-                    </div>
-                    <div class="editor-actions">
-                        <button id="addKeyframeBtn" class="btn-editor">+ Add Keyframe</button>
-                        <button id="deleteKeyframeBtn" class="btn-editor secondary">🗑 Delete</button>
-                    </div>
-                    <div class="editor-actions">
-                        <button id="exportJsonBtn" class="btn-editor">📤 Export JSON</button>
-                        <button id="loadToViewerBtn" class="btn-editor secondary">▶ Load to Viewer</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-        <!-- Curve Preview Tooltip -->
-    <div id="curvePreview" class="curve-preview" style="display: none;">
-        <div class="curve-preview-title" id="curveTitle">Ease</div>
-        <svg class="curve-svg" id="curveSvg" viewBox="0 0 100 80">
-            <!-- Grid lines -->
-            <defs>
-                <pattern id="grid" width="10" height="8" patternUnits="userSpaceOnUse">
-                    <path d="M 10 0 L 0 0 0 8" fill="none" class="curve-grid"/>
-                </pattern>
-            </defs>
-            <rect width="100" height="80" fill="url(#grid)"/>
-
-            <!-- Curve path -->
-            <path id="curvePath" class="curve-path" d="M 10,70 Q 35,70 90,10"/>
-
-            <!-- Control points -->
-            <circle class="curve-handles" cx="10" cy="70" r="2"/>
-            <circle class="curve-handles" cx="90" cy="10" r="2"/>
-            <circle id="handle1" class="curve-handles" cx="35" cy="70" r="2"/>
-            <circle id="handle2" class="curve-handles" cx="65" cy="40" r="2"/>
-        </svg>
-    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
@@ -1793,22 +1672,7 @@
         let startTime = 0;
         let showReadableView = true;
 
-        // Animation Editor state
-        let editorKeyframes = {
-            brightness: [],
-            rotation: [],
-            tilt: []
-        };
-        let selectedKeyframe = null;
-        let editorCurrentFrame = 0;
-        let editorIsPlaying = false;
-        let editorStartTime = 0;
-        let editorAnimationId = null;
-        let timelineWidth = 1000;
-        let pixelsPerFrame = 5;
-        let isDraggingPlayhead = false;
-        let dragStartX = 0;
-        let dragStartFrame = 0;
+
 
         // DOM elements
         const canvas = document.getElementById('canvas');
@@ -1836,40 +1700,6 @@
 
         // Animation Editor elements
         const editorBtn = document.getElementById('editorBtn');
-        const editorModal = document.getElementById('editorModal');
-        const editorCloseBtn = document.getElementById('editorCloseBtn');
-        const editorPlayBtn = document.getElementById('editorPlayBtn');
-        const editorPauseBtn = document.getElementById('editorPauseBtn');
-        const editorResetBtn = document.getElementById('editorResetBtn');
-        const editorFrameRate = document.getElementById('editorFrameRate');
-        const editorStartFrame = document.getElementById('editorStartFrame');
-        const editorEndFrame = document.getElementById('editorEndFrame');
-        const editorLoop = document.getElementById('editorLoop');
-        const timelineRuler = document.getElementById('timelineRuler');
-        const rulerMarks = document.getElementById('rulerMarks');
-        const playhead = document.getElementById('playhead');
-        const timelineTracks = document.getElementById('timelineTracks');
-        const brightnessTrack = document.getElementById('brightnessTrack');
-        const rotationTrack = document.getElementById('rotationTrack');
-        const tiltTrack = document.getElementById('tiltTrack');
-        const sidebarContent = document.getElementById('sidebarContent');
-        const addKeyframeBtn = document.getElementById('addKeyframeBtn');
-        const deleteKeyframeBtn = document.getElementById('deleteKeyframeBtn');
-        const exportJsonBtn = document.getElementById('exportJsonBtn');
-        const loadToViewerBtn = document.getElementById('loadToViewerBtn');
-        const zoomLevel = document.getElementById('zoomLevel');
-        const playheadHandle = document.getElementById('playheadHandle');
-        const playheadFrameDisplay = document.getElementById('playheadFrameDisplay');
-        const trackBrightness = document.getElementById('trackBrightness');
-        const trackRotation = document.getElementById('trackRotation');
-        const trackTilt = document.getElementById('trackTilt');
-        const keyframeEditorSection = document.getElementById('keyframeEditorSection');
-        const noKeyframeSelected = document.getElementById('noKeyframeSelected');
-        const curvePreview = document.getElementById('curvePreview');
-        const curveTitle = document.getElementById('curveTitle');
-        const curvePath = document.getElementById('curvePath');
-        const handle1 = document.getElementById('handle1');
-        const handle2 = document.getElementById('handle2');
 
         // Sample animation data
         const sampleAnimation = {
@@ -2248,50 +2078,7 @@
             editorIframeModal.addEventListener('click', (e) => {
                 if (e.target === editorIframeModal) hideEditorOverlay();
             });
-            editorCloseBtn.addEventListener('click', hideEditor);
-            editorPlayBtn.addEventListener('click', playEditorAnimation);
-            editorPauseBtn.addEventListener('click', pauseEditorAnimation);
-            editorResetBtn.addEventListener('click', resetEditorAnimation);
-            addKeyframeBtn.addEventListener('click', addKeyframe);
-            deleteKeyframeBtn.addEventListener('click', deleteSelectedKeyframe);
-            exportJsonBtn.addEventListener('click', exportAnimationJson);
-            loadToViewerBtn.addEventListener('click', loadEditorAnimationToViewer);
-            editorModal.addEventListener('click', (e) => {
-                if (e.target === editorModal) hideEditor();
-            });
 
-            // Timeline configuration listeners
-            editorFrameRate.addEventListener('change', updateTimelineConfig);
-            editorStartFrame.addEventListener('change', updateTimelineConfig);
-            editorEndFrame.addEventListener('change', updateTimelineConfig);
-
-            // Timeline interaction listeners
-            brightnessTrack.addEventListener('click', (e) => handleTrackClick(e, 'brightness'));
-            rotationTrack.addEventListener('click', (e) => handleTrackClick(e, 'rotation'));
-            tiltTrack.addEventListener('click', (e) => handleTrackClick(e, 'tilt'));
-
-            // Timeline ruler click for scrubbing
-            timelineRuler.addEventListener('click', handleRulerClick);
-
-            // Sync scrolling between ruler and tracks
-            timelineRuler.addEventListener('scroll', () => {
-                timelineTracks.scrollLeft = timelineRuler.scrollLeft;
-            });
-            timelineTracks.addEventListener('scroll', () => {
-                timelineRuler.scrollLeft = timelineTracks.scrollLeft;
-            });
-
-            // Playhead dragging
-            playheadHandle.addEventListener('mousedown', startDragPlayhead);
-            playhead.addEventListener('mousedown', startDragPlayhead);
-            document.addEventListener('mousemove', dragPlayhead);
-            document.addEventListener('mouseup', stopDragPlayhead);
-
-            // Keyboard shortcuts for editor
-            document.addEventListener('keydown', handleEditorKeydown);
-
-            // Hide curve preview when mouse leaves editor
-            editorModal.addEventListener('mouseleave', hideCurvePreview);
 
 
             // Drag and drop
@@ -2692,31 +2479,7 @@
             }
         }
 
-        // Animation Editor Functions
-        function showEditor() {
-            editorModal.classList.add('show');
-            editorCurrentFrame = parseInt(editorStartFrame.value);
-            initializeTimeline();
-            loadDefaultKeyframes();
 
-            // Initialize sidebar state
-            selectedKeyframe = null;
-            updateSidebar();
-
-            status.textContent = '🎬 Animation Editor opened';
-            status.className = 'status success';
-        }
-
-        function hideEditor() {
-            editorModal.classList.remove('show');
-            pauseEditorAnimation();
-        }
-
-        function initializeTimeline() {
-            updateTimelineConfig();
-            renderTimeline();
-            updatePlayhead();
-        }
 
                 function updateTimelineConfig() {
             const startFrame = parseInt(editorStartFrame.value);
@@ -3644,11 +3407,6 @@
         }
 
         function handleKeyDown(event) {
-            // Don't handle spacebar when editor modal is open (let editor handle it)
-            if (event.key === ' ' && editorModal.classList.contains('show')) {
-                return;
-            }
-
             // Don't interfere when user is typing in input fields
             if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
                 return;
@@ -3659,8 +3417,6 @@
                     hideDropOverlay();
                 } else if (schemaModal.classList.contains('show')) {
                     hideSchema();
-                } else if (editorModal.classList.contains('show')) {
-                    hideEditor();
                 }
             } else if (event.key === ' ') { // Spacebar
                 event.preventDefault(); // Prevent page scroll
