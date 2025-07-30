@@ -2545,7 +2545,7 @@
             updatePlayhead();
         }
 
-        function exportAnimationJson() {
+        async function exportAnimationJson() {
             const animationConfig = {
                 frameRate: parseInt(editorFrameRate.value),
                 startFrame: parseInt(editorStartFrame.value),
@@ -2574,7 +2574,36 @@
 
             const jsonString = JSON.stringify(animationConfig, null, 2);
 
-            // Download the JSON file
+            // Try to use File System Access API for modern browsers
+            if ('showSaveFilePicker' in window) {
+                try {
+                    const fileHandle = await window.showSaveFilePicker({
+                        suggestedName: 'custom_animation.json',
+                        types: [
+                            {
+                                description: 'JSON files',
+                                accept: {
+                                    'application/json': ['.json'],
+                                },
+                            },
+                        ],
+                    });
+
+                    const writable = await fileHandle.createWritable();
+                    await writable.write(jsonString);
+                    await writable.close();
+
+                    console.log('Animation exported successfully!');
+                    return;
+                } catch (error) {
+                    if (error.name !== 'AbortError') {
+                        console.error('Error saving file:', error);
+                    }
+                    // Fall through to download method if save dialog was cancelled or failed
+                }
+            }
+
+            // Fallback: Download the JSON file (for older browsers or if save picker failed)
             const blob = new Blob([jsonString], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
 

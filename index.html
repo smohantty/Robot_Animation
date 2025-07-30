@@ -3292,9 +3292,43 @@
             }
         }
 
-        function downloadSchemaFile() {
+        async function downloadSchemaFile() {
             try {
                 const schemaJson = JSON.stringify(animationSchema, null, 2);
+
+                // Try to use File System Access API for modern browsers
+                if ('showSaveFilePicker' in window) {
+                    try {
+                        const fileHandle = await window.showSaveFilePicker({
+                            suggestedName: 'robot_animation_schema.json',
+                            types: [
+                                {
+                                    description: 'JSON files',
+                                    accept: {
+                                        'application/json': ['.json'],
+                                    },
+                                },
+                            ],
+                        });
+
+                        const writable = await fileHandle.createWritable();
+                        await writable.write(schemaJson);
+                        await writable.close();
+
+                        status.textContent = '✅ Schema saved successfully';
+                        status.className = 'status success';
+                        return;
+                    } catch (error) {
+                        if (error.name === 'AbortError') {
+                            // User cancelled the save dialog
+                            return;
+                        }
+                        console.error('Error saving schema file:', error);
+                        // Fall through to download method if save picker failed
+                    }
+                }
+
+                // Fallback: Download the JSON file (for older browsers or if save picker failed)
                 const blob = new Blob([schemaJson], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
 
